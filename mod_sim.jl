@@ -127,8 +127,19 @@ function step2(x, pop)
 end
 
 function step3(x, pop)
+    """
+    x: Boolean upper-triangular adjacency matrix
+    pop: Total population
+
+    returns: Suggested next candidate
+    """
     newx = copy(x)
     row = rand((1: pop-1))
+    for i in row+1:pop
+        e = newx[row, i]
+        newx[row, i] = ~e
+    end
+    return newx
 end
 
 function cool_fun(it, in_temp, iters)
@@ -165,31 +176,31 @@ struct SimAnnealing
     it_tot::Int64
 end
 
-sim = SimAnnealing(step2, objective, cool_fun, metro_fun, 10, 3, 10, 100)
+sim = SimAnnealing([step, step2, step3], objective, cool_fun, metro_fun, 10, 3, 10, 1000)
  
 best = gen_in(35184372088831)
+step3(best, 10)
 best = gen_in(0)
 best_eval = objective(best, sim.population, sim.restrict)
 # println(count(new[:], 1))
-n = gen_in(35184371302399)
-mem_calcs(n, sim.population)
-n_e = objective(n, sim.population, sim.restrict)
+# n = gen_in(35184371302399)
+# mem_calcs(n, sim.population)
+# n_e = objective(n, sim.population, sim.restrict)
 
 cur, cur_eval = best, best_eval
 
 @profile for i in 0:sim.it_tot
 
     # generating and evaluating candidate
-    cand = sim.steptype(cur, sim.population) # changing cur
+    cand = sim.steptype[rand((1, 2, 3, 3))](cur, sim.population) # changing cur
     cand_sum = sim.obj_function(cand, sim.population, sim.restrict)
 
     diff = cur_eval - cand_sum
 
     t = sim.cooling(i, sim.init_temp, sim.it_tot)
-    println(t, ", t")
+
     metro = sim.metropolis(t, diff)
-    println(metro, ", m")
-    println(diff, " difference")
+
     if diff < 0 || rand(Float64) < metro
         cur, cur_eval = cand, cand_sum
         println("STEP TAKEN", i)
