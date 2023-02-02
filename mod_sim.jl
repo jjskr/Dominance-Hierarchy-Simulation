@@ -39,7 +39,7 @@ function mem_calcs(x, pop)
     return max_mem, tot_mem
 end
 
-function objective(x, n_agents, res, args=(100, 1))
+function objective(x, n_agents, res, args=(50, 1))
     """
     x: Strategy matrix
     n_agents: Total population
@@ -62,7 +62,7 @@ function objective(x, n_agents, res, args=(100, 1))
 
     tot_v = tot/n_agents
 
-    return sum(x) - res_inf*mem_v - tot_inf*tot_v
+    return 2*sum(x) - res_inf*mem_v - tot_inf*tot_v
 end
 
 function gen_in(no)
@@ -142,6 +142,22 @@ function step3(x, pop)
     return newx
 end
 
+function step4(x, pop)
+    """
+    x: Boolean upper-triangular adjacency matrix
+    pop: Total population
+
+    returns: Suggested next candidate
+    """
+    newx = copy(x)
+    col = rand((2: pop))
+    for i in 1:col-1
+        e = newx[i, col]
+        newx[i, col] = ~e
+    end
+    return newx
+end
+
 function cool_fun(it, in_temp, iters)
     """
     t: iteration number
@@ -161,7 +177,7 @@ function metro_fun(temp, difference)
 
     returns: metropolis-hastings value
     """
-    metro = (exp(-10*difference/temp))
+    metro = (exp(-1*difference/temp))
     return metro
 end
 
@@ -176,9 +192,12 @@ struct SimAnnealing
     it_tot::Int64
 end
 
-sim = SimAnnealing([step, step2, step3], objective, cool_fun, metro_fun, 10, 3, 10, 1000)
- 
+sim = SimAnnealing([step, step2, step3, step4], objective, cool_fun, metro_fun, 10, 3, 10, 10000)
+opt = gen_in(35146671702464)
+mem_calcs(opt, 10)
+sum(opt)
 best = gen_in(35184372088831)
+mem_calcs(best, 10)
 step3(best, 10)
 best = gen_in(0)
 best_eval = objective(best, sim.population, sim.restrict)
@@ -189,10 +208,11 @@ best_eval = objective(best, sim.population, sim.restrict)
 
 cur, cur_eval = best, best_eval
 
-@profile for i in 0:sim.it_tot
+# @profile for i in 0:sim.it_tot
+for i in 0:sim.it_tot
 
     # generating and evaluating candidate
-    cand = sim.steptype[rand((1, 2, 3, 3))](cur, sim.population) # changing cur
+    cand = sim.steptype[rand((1, 2, 3, 4))](cur, sim.population) # changing cur
     cand_sum = sim.obj_function(cand, sim.population, sim.restrict)
 
     diff = cur_eval - cand_sum
@@ -200,17 +220,18 @@ cur, cur_eval = best, best_eval
     t = sim.cooling(i, sim.init_temp, sim.it_tot)
 
     metro = sim.metropolis(t, diff)
-
+    # println(metro, " m")
+    # println(diff, " diff")
     if diff < 0 || rand(Float64) < metro
         cur, cur_eval = cand, cand_sum
-        println("STEP TAKEN", i)
-    else
-        println("NOT TAKEN", i)
+    #     println("STEP TAKEN", i)
+    # else
+    #     println("NOT TAKEN", i)
     end
     # println("--------")
 end
 
-pprof()
+# pprof()
 
 show(stdout, "text/plain", cur)
 println(mem_calcs(cur, sim.population))
