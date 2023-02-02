@@ -39,7 +39,7 @@ function mem_calcs(x, pop)
     return max_mem, tot_mem
 end
 
-function objective(x, n_agents, res, args=(10, 1))
+function objective(x, n_agents, res, args=(100, 1))
     """
     x: Strategy matrix
     n_agents: Total population
@@ -82,6 +82,12 @@ function gen_in(no)
 end
 
 function step(x, pop)
+    """
+    x: Boolean upper-triangular adjacency matrix
+    pop: Total population
+
+    returns: Suggested next candidate
+    """
     newx = copy(x)
     row = rand((1: pop-1))
     col = rand((row+1: pop))
@@ -94,6 +100,12 @@ function step(x, pop)
 end
 
 function step2(x, pop)
+    """
+    x: Boolean upper-triangular adjacency matrix
+    pop: Total population
+
+    returns: Suggested next candidate
+    """
     newx = copy(x)
     row = rand((1: pop-1))
     col = rand((row+1: pop))
@@ -148,7 +160,7 @@ struct SimAnnealing
     it_tot::Int64
 end
 
-sim = SimAnnealing(step, objective, cool_fun, metro_fun, 10, 4, 10, 100)
+sim = SimAnnealing(step2, objective, cool_fun, metro_fun, 10, 4, 10, 100)
  
 best = gen_in(35184372088831)
 best = gen_in(0)
@@ -166,22 +178,12 @@ cur, cur_eval = best, best_eval
     cand = sim.steptype(cur, sim.population) # changing cur
     cand_sum = sim.obj_function(cand, sim.population, sim.restrict)
 
-    # if cand_sum>cur_eval
-    #     best, best_eval = cand, cand_sum
-    #     # cur, cur_eval = best, best_eval  #
-    # end
-
-    # println("c ", cur)
-    # println("cur sum ", cur_eval)
-    # println("can ", cand)
-    # println("cand sum ", cand_sum)
     diff = cur_eval - cand_sum
-    # println("d ", diff)
-    # t = temp/(i + 1)
+
     t = sim.cooling(i, sim.init_temp, sim.it_tot)
-    # println("t ", t)
+
     metro = sim.metropolis(t, diff)
-    # println("m ", metro)
+
     if diff < 0 || rand(Float64) < metro
         cur, cur_eval = cand, cand_sum
         println("STEP TAKEN", i)
@@ -190,10 +192,10 @@ cur, cur_eval = best, best_eval
     end
     # println("--------")
 end
+
 pprof()
+
 show(stdout, "text/plain", cur)
 println(mem_calcs(cur, sim.population))
-println(cur)
 println(cur_eval)
-final_mem, final_tot = mem_calcs(cur, population)
 sum(cur)

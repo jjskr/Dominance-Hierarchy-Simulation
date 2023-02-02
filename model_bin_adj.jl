@@ -1,54 +1,15 @@
 using Plots, BenchmarkTools, PProf, Profile, Dates
 
-function to_binary(n)
-    
-    # Convert these digits to false/true
-    return digits(n, base=2, )
-    
-end
-function vec3utri(v)
-
-    # v = AbstractVector{v}
-    # z = zero(v)
-    zz = 0
-    # println(z)
-    println("--------")
-    n = length(v)
-    s = round((sqrt(8n+1)-1)/2)
-    # println(n)
-    # println(s)
-    s*(s+1)/2 == n || error("vec2utri: length of vector is not triangular")
-    p = [ i<=j ? v[Int(j*(j-1)/2+i)] : zz for i=1:s, j=1:s ]
-    return p
-end
-
-function vec2utri(v)
-
-    # v = AbstractVector{v}
-    # z = zero(v)
-    zz = false
-    # println(z)
-    println("--------")
-    n = length(v)
-    s = round((sqrt(8n+1)-1)/2)
-    println(n)
-    println(s)
-    s*(s+1)/2 == n || error("vec2utri: length of vector is not triangular")
-    p = [ i<j && i<=s && j<=s+1 && i>=1  ? v[Int((j-1)*(j-2)/2+(i))] : zz for i=0:s, j=1:s+1 ]
-    return p
-end
-
 
 function vec4utri(v)
+    """
+    v: Vector of binary numbers
 
-    # v = AbstractVector{v}
-    # z = zero(v)
+    returns: Upper-triangular adjacency matrix of v
+    """
     zz = false
-    # println(z)
     n = length(v)
     s = round((sqrt(8n+1)-1)/2)
-    # println(n)
-    # println(s)
     # s*(s+1)/2 == n || error("vec2utri: length of vector is not triangular")
     p = [ i<j && i<=s && j<=s ? Bool(v[Int((j)*(j-1)/2+(i+1))]) : zz for i=0:s, j=0:s ]
     return p
@@ -79,13 +40,6 @@ function mixed(n, h, d)
     return mix_ar
 end
 
-
-# function vec2utri(v)
-#     n = length(v)
-#     s = iround((sqrt(8n+1)-1)/2)
-#     s*(s+1)/2 == n || error("vec2utri: length of vector is not triangular")
-#     [ i<=j ? v[j*(j-1)/2+i] : z for i=1:s, j=1:s ]
-# end
 function main()
     n_agents = 5
     vecc = digits(Int(101), base=2, pad=10)
