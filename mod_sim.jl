@@ -126,6 +126,11 @@ function step2(x, pop)
     return newx
 end
 
+function step3(x, pop)
+    newx = copy(x)
+    row = rand((1: pop-1))
+end
+
 function cool_fun(it, in_temp, iters)
     """
     t: iteration number
@@ -134,7 +139,7 @@ function cool_fun(it, in_temp, iters)
 
     returns: temperature
     """
-    t = in_temp*(1-(it+1)/iters)
+    t = in_temp*(1-(it)/iters)
     return t
 end
 
@@ -145,7 +150,7 @@ function metro_fun(temp, difference)
 
     returns: metropolis-hastings value
     """
-    metro = (exp(-1*difference/temp))
+    metro = (exp(-10*difference/temp))
     return metro
 end
 
@@ -160,7 +165,7 @@ struct SimAnnealing
     it_tot::Int64
 end
 
-sim = SimAnnealing(step2, objective, cool_fun, metro_fun, 10, 4, 10, 100)
+sim = SimAnnealing(step2, objective, cool_fun, metro_fun, 10, 3, 10, 100)
  
 best = gen_in(35184372088831)
 best = gen_in(0)
@@ -181,9 +186,10 @@ cur, cur_eval = best, best_eval
     diff = cur_eval - cand_sum
 
     t = sim.cooling(i, sim.init_temp, sim.it_tot)
-
+    println(t, ", t")
     metro = sim.metropolis(t, diff)
-
+    println(metro, ", m")
+    println(diff, " difference")
     if diff < 0 || rand(Float64) < metro
         cur, cur_eval = cand, cand_sum
         println("STEP TAKEN", i)
