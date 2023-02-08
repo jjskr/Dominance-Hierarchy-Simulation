@@ -33,13 +33,13 @@ function mem_calcs(x, pop)
         if mem_need > max_mem
             max_mem = mem_need
         end
-
+        # println(i, ", ", mem_need)
     end
 
     return max_mem, tot_mem
 end
 
-function objective(x, n_agents, res, args=(50, 1))
+function objective(x, n_agents, res, args=(200, 1))
     """
     x: Strategy matrix
     n_agents: Total population
@@ -71,7 +71,7 @@ function gen_in(no)
 
     returns: Upper-triangular Bool Matrix for number
     """
-    # 5 is pad 10, 10 pad 45
+    # 5 is pad 10, 10 pad 45, 20 pad 190
     # turn decimal to binary
     bin_vec = (digits(Int(no), base=2, pad=45)|> reverse)
 
@@ -158,6 +158,25 @@ function step4(x, pop)
     return newx
 end
 
+function step5(x, pop)
+    newx = copy(x)
+    row = rand((1:pop-1))
+    col = pop + 1 - row
+    # println(row, ", row")
+    # println("sum: ", sum(x[row, :]))
+    # println(row)
+    # println(col)
+    if sum(x[row, :]) < pop - row
+        for i in row+1:pop
+            newx[row, i] = 1
+        end
+        for i in row+1:pop-1
+            newx[i, col] = 0
+        end
+    end
+    return newx
+end
+
 function cool_fun(it, in_temp, iters)
     """
     t: iteration number
@@ -192,13 +211,13 @@ struct SimAnnealing
     it_tot::Int64
 end
 
-sim = SimAnnealing([step, step2, step3, step4], objective, cool_fun, metro_fun, 10, 3, 10, 10000)
+sim = SimAnnealing([step, step2, step3, step4, step5], objective, cool_fun, metro_fun, 10, 3, 10, 20000)
 opt = gen_in(35146671702464)
+
 mem_calcs(opt, 10)
 sum(opt)
 best = gen_in(35184372088831)
 mem_calcs(best, 10)
-step3(best, 10)
 best = gen_in(0)
 best_eval = objective(best, sim.population, sim.restrict)
 # println(count(new[:], 1))
@@ -208,11 +227,13 @@ best_eval = objective(best, sim.population, sim.restrict)
 
 cur, cur_eval = best, best_eval
 
-# @profile for i in 0:sim.it_tot
-for i in 0:sim.it_tot
+steps_taken = zeros(5)
+@profile for i in 0:sim.it_tot
+# for i in 0:sim.it_tot
 
     # generating and evaluating candidate
-    cand = sim.steptype[rand((1, 2, 3, 4))](cur, sim.population) # changing cur
+    num = rand((1, 2, 3, 4, 5))
+    cand = sim.steptype[num](cur, sim.population) # changing cur
     cand_sum = sim.obj_function(cand, sim.population, sim.restrict)
 
     diff = cur_eval - cand_sum
@@ -224,6 +245,8 @@ for i in 0:sim.it_tot
     # println(diff, " diff")
     if diff < 0 || rand(Float64) < metro
         cur, cur_eval = cand, cand_sum
+        steps_taken[num] = steps_taken[num] + 1
+        
     #     println("STEP TAKEN", i)
     # else
     #     println("NOT TAKEN", i)
@@ -234,6 +257,12 @@ end
 # pprof()
 
 show(stdout, "text/plain", cur)
+steps_taken
 println(mem_calcs(cur, sim.population))
 println(cur_eval)
 sum(cur)
+mem_calcs(cur, 10)
+# okkkk = step5(okkk, 10)
+# mem_calcs(okkkk, 10)
+# sum(okkkk)
+# good = copy(cur)
