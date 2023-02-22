@@ -252,6 +252,7 @@ best = gen_in(0, 78)
 #         end
 #     end
 # end
+
 best = gen_in(0, 78)
 mem_calcs(best, sim.population)
 sum(best)
@@ -296,6 +297,8 @@ mem_calcs(cur, sim.population)
 show(stdout, "text/plain", cur)
 steps_taken
 println(cur_eval)
+
+godd = copy(cur)
 # okkkk = step5(okkk, 10)
 # mem_calcs(okkkk, 10)
 # sum(okkkk)
