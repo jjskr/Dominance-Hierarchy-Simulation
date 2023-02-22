@@ -39,7 +39,7 @@ function mem_calcs(x, pop)
     return max_mem, tot_mem
 end
 
-function objective(x, n_agents, res, args=(200, 1))
+function objective(x, n_agents, res, args=(200, 10))
     """
     x: Strategy matrix
     n_agents: Total population
@@ -63,22 +63,6 @@ function objective(x, n_agents, res, args=(200, 1))
     tot_v = tot/n_agents
 
     return 2*sum(x) - res_inf*mem_v - tot_inf*tot_v
-end
-
-function gen_in(no)
-    """
-    no: Number to turn into BitArray/Bool matrix
-
-    returns: Upper-triangular Bool Matrix for number
-    """
-    # 5 is pad 10, 10 pad 45, 20 pad 190
-    # turn decimal to binary
-    bin_vec = (digits(Int(no), base=2, pad=45)|> reverse)
-
-    # turn binary to matrix
-    s_mat = vec4utri(bin_vec)
-
-    return s_mat
 end
 
 function step(x, pop)
@@ -161,6 +145,9 @@ end
 function step5(x, pop)
     newx = copy(x)
     row = rand((1:pop-1))
+    # if row in 1:5
+    #     println(row)
+    # end
     col = pop + 1 - row
     # println(row, ", row")
     # println("sum: ", sum(x[row, :]))
@@ -172,6 +159,25 @@ function step5(x, pop)
         end
         for i in row+1:pop-1
             newx[i, col] = 0
+        end
+    end
+    return newx
+end
+
+function step6(x, pop)
+    newx = copy(x)
+    row = rand((1:pop-1))
+    col = pop + 1 - row
+    # println(row, ", row")
+    # println("sum: ", sum(x[row, :]))
+    # println(row)
+    # println(col)
+    if sum(x[row, :]) < pop - row
+        for i in row+1:pop
+            newx[row, i] = 0
+        end
+        for i in 1:row-1
+            newx[i, row] = 1
         end
     end
     return newx
@@ -200,6 +206,22 @@ function metro_fun(temp, difference)
     return metro
 end
 
+function gen_in(no, pad_size)
+    """
+    no: Number to turn into BitArray/Bool matrix
+
+    returns: Upper-triangular Bool Matrix for number
+    """
+    # 5 is pad 10, 10 pad 45, 20 pad 190
+    # turn decimal to binary
+    bin_vec = (digits(Int(no), base=2, pad=pad_size)|> reverse)
+
+    # turn binary to matrix
+    s_mat = vec4utri(bin_vec)
+
+    return s_mat
+end
+
 struct SimAnnealing
     steptype
     obj_function
@@ -211,23 +233,33 @@ struct SimAnnealing
     it_tot::Int64
 end
 
-sim = SimAnnealing([step, step2, step3, step4, step5], objective, cool_fun, metro_fun, 10, 3, 10, 20000)
-opt = gen_in(35146671702464)
+sim = SimAnnealing([step, step2, step3, step4, step5, step6], objective, cool_fun, metro_fun, 10, 3, 13, 50000)
+opt = gen_in(35146671702464, 45)
 
 mem_calcs(opt, 10)
 sum(opt)
-best = gen_in(35184372088831)
+best = gen_in(35184372088831, 45)
 mem_calcs(best, 10)
-best = gen_in(0)
+best = gen_in(0, 45)
+hmm = gen_in(295164793806804975616, 190)
+best = gen_in(0, 78)
+
+# for i in 2:20
+#     nom = i
+#     for j in 1:nom-1
+#         if j < 5
+#             best[j, i] = 1
+#         end
+#     end
+# end
+best = gen_in(0, 78)
+mem_calcs(best, sim.population)
+sum(best)
+println(best)
 best_eval = objective(best, sim.population, sim.restrict)
-# println(count(new[:], 1))
-# n = gen_in(35184371302399)
-# mem_calcs(n, sim.population)
-# n_e = objective(n, sim.population, sim.restrict)
-
 cur, cur_eval = best, best_eval
+steps_taken = zeros(6)
 
-steps_taken = zeros(5)
 @profile for i in 0:sim.it_tot
 # for i in 0:sim.it_tot
 
@@ -235,7 +267,11 @@ steps_taken = zeros(5)
     num = rand((1, 2, 3, 4, 5))
     cand = sim.steptype[num](cur, sim.population) # changing cur
     cand_sum = sim.obj_function(cand, sim.population, sim.restrict)
-
+    # if num == 5
+    #     if cand_sum > cur_eval
+    #         println(cur_eval, " ", cand_sum)
+    #     end
+    # end
     diff = cur_eval - cand_sum
 
     t = sim.cooling(i, sim.init_temp, sim.it_tot)
@@ -247,7 +283,6 @@ steps_taken = zeros(5)
         cur, cur_eval = cand, cand_sum
         steps_taken[num] = steps_taken[num] + 1
         
-    #     println("STEP TAKEN", i)
     # else
     #     println("NOT TAKEN", i)
     end
@@ -255,13 +290,12 @@ steps_taken = zeros(5)
 end
 
 # pprof()
-
+objective(cur, sim.population, sim.restrict)
+sum(cur)
+mem_calcs(cur, sim.population)
 show(stdout, "text/plain", cur)
 steps_taken
-println(mem_calcs(cur, sim.population))
 println(cur_eval)
-sum(cur)
-mem_calcs(cur, 10)
 # okkkk = step5(okkk, 10)
 # mem_calcs(okkkk, 10)
 # sum(okkkk)
