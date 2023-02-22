@@ -205,7 +205,7 @@ function metro_fun(temp, difference)
     return metro
 end
 
-function gen_in(no, pad_size)
+function gen_in(no, pop)
     """
     no: Number to turn into BitArray/Bool matrix
 
@@ -213,7 +213,7 @@ function gen_in(no, pad_size)
     """
     # 5 is pad 10, 10 pad 45, 20 pad 190
     # turn decimal to binary
-    bin_vec = (digits(Int(no), base=2, pad=pad_size)|> reverse)
+    bin_vec = (digits(Int(no), base=2, pad=Int(((pop*pop)-pop)/2))|> reverse)
 
     # turn binary to matrix
     s_mat = vec4utri(bin_vec)

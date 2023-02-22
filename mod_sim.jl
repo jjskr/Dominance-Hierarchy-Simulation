@@ -32,7 +32,7 @@ best = gen_in(0, 78)
 #     end
 # end
 
-best = gen_in(0, 78)
+best = gen_in(0, 13)
 mem_calcs(best, sim.population)
 sum(best)
 println(best)
