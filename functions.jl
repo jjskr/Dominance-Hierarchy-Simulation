@@ -38,6 +38,43 @@ function mem_calcs(x, pop)
     return max_mem, tot_mem
 end
 
+function mem_calcs_full(x, pop)
+    """
+    x: Strategy matrix
+    pop: Total population
+
+    returns: Maximum individual memory, total memory
+    """
+    # calculating hawk and dove strategies
+    dove = sum(x, dims=1)
+    hawk = sum(eachcol(x))
+
+    # calculating mixed strategies
+    mix_ar = zeros(Int64, pop, 1)
+
+    for i in 1:pop
+        mixes = pop-1 - hawk[i] - dove[i]
+        mix_ar[i] = mixes
+    end
+
+    # memory calculations
+    max_mem = 0
+    tot_mem = 0
+    for i in 1:pop
+
+        def = max(dove[i], hawk[i], mix_ar[i])
+        mem_need = pop - 1 - def
+
+        tot_mem = tot_mem + mem_need
+        if mem_need > max_mem
+            max_mem = mem_need
+        end
+        println(i, ", ", mem_need)
+    end
+
+    return max_mem, tot_mem
+end
+
 function objective(x, n_agents, res, args=(200, 10))
     """
     x: Strategy matrix
