@@ -189,14 +189,19 @@ function step5(x, pop)
     # println("sum: ", sum(x[row, :]))
     # println(row)
     # println(col)
-    if sum(x[row, :]) < pop - row
-        for i in row+1:pop
-            newx[row, i] = 1
-        end
-        for i in row+1:pop-1
-            newx[i, col] = 0
+    if sum(x[row, :]) == pop - row
+        while sum(x[row, :]) == pop - row
+            row = rand((1:pop-1))
         end
     end
+
+    for i in row+1:pop
+        newx[row, i] = 1
+    end
+    for i in row+1:pop-1
+        newx[i, col] = 0
+    end
+
     return newx
 end
 
@@ -217,6 +222,41 @@ function step6(x, pop)
         end
     end
     return newx
+end
+
+function step7(x, pop)
+    newx = copy(x)
+    row = rand((1:pop-1))
+    if sum(x[row, :]) < 0.5*(pop - row)
+        for i in row+1:pop
+            newx[row, i] = 1
+        end
+    end
+    return newx
+end
+
+function step8(x, pop)
+    newx = copy(x)
+    row1 = rand((1:pop-2))
+    row2 = rand((row1:pop-1))
+    diff = row1 - row2
+    if diff > 1
+        if row2 < pop - 1
+            for i in 1:diff-1
+                newx[row1, row2 - i] = newx[row1 + i, row2]
+            end
+            for i in row2+1:pop
+                newx[row1, i] = newx[row2, i]
+        end
+        if row2 == pop - 1
+            for i in 1:diff
+                newx[row1, row2 - i] = newx[row1 + i, row2]
+            end
+        end
+    end
+    
+    for i in row2+1:
+    
 end
 
 function cool_fun(it, in_temp, iters)
