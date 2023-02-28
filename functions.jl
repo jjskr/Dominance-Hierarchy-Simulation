@@ -1,6 +1,48 @@
 using Random, Profile, PProf
 include("model_bin_adj.jl")
 
+function initialise(pop, res)
+
+    best = gen_in(0, pop)
+    best_eval = objective(best, pop, res)
+    cur, cur_eval = best, best_eval
+    steps_taken = zeros(7)
+
+    return cur, cur_eval, steps_taken
+end
+
+function sim_ann(it, pop, step_list, obj_fun, cool_fun, init_temp, cur, cur_eval, metro, step_count)
+    @profile for i in 0:it
+        # for i in 0:sim.it_tot
+        
+            # generating and evaluating candidate
+            num = rand((1, 2, 3, 4, 5, 6, 7))
+            cand = step_list[num](cur, pop) # changing cur
+            cand_sum = obj_fun(cand, pop, res)
+            # if num == 5
+            #     if cand_sum > cur_eval
+            #         println(cur_eval, " ", cand_sum)
+            #     end
+            # end
+            diff = cur_eval - cand_sum
+        
+            t = cool_fun(i, init_temp, it)
+        
+            metrop = metro(t, diff)
+            # println(metro, " m")
+            # println(diff, " diff")
+            if diff < 0 || rand(Float64) < metrop
+                cur, cur_eval = cand, cand_sum
+                step_count[num] = step_count[num] + 1
+                
+            # else
+            #     println("NOT TAKEN", i)
+            end
+            # println("--------")
+        end
+    return cur, step_count
+end
+
 function mem_calcs(x, pop)
     """
     x: Strategy matrix
@@ -243,20 +285,35 @@ function step8(x, pop)
     if diff > 1
         if row2 < pop - 1
             for i in 1:diff-1
-                newx[row1, row2 - i] = newx[row1 + i, row2]
+                a = newx[row1, row2 - i]
+                b = newx[row1 + i, row2]
+                newx[row1, row2 - i] = b
+                newx[row1 + i, row2] = a
             end
             for i in row2+1:pop
-                newx[row1, i] = newx[row2, i]
+                a = newx[row1, i]
+                b = newx[row2, i]
+                newx[row1, i] = b
+                newx[row2, i] = a
+            end
         end
         if row2 == pop - 1
             for i in 1:diff
-                newx[row1, row2 - i] = newx[row1 + i, row2]
+                a = newx[row1, row2 - i]
+                b = newx[row1 + i, row2]
+                newx[row1, row2 - i] = b
+                newx[row1 + i, row2] = a
             end
         end
     end
     
-    for i in row2+1:
-    
+    for i in row2+1:pop
+        a = newx[row1, i]
+        b =  newx[row2, i]
+        newx[row1, i] = b
+        newx[row2, i] = a
+    end
+    return newx
 end
 
 function cool_fun(it, in_temp, iters)

@@ -12,16 +12,16 @@ struct SimAnnealing
     it_tot::Int64
 end
 
-sim = SimAnnealing([step, step2, step3, step4, step5, step6], objective, cool_fun, metro_fun, 10, 3, 13, 50000)
-opt = gen_in(35146671702464, 45)
+sim = SimAnnealing([step, step2, step3, step4, step5, step6, step8], objective, cool_fun, metro_fun, 10, 3, 15, 50000)
+opt = gen_in(35146671702464, 10)
 
-mem_calcs(opt, 10)
-sum(opt)
-best = gen_in(35184372088831, 45)
-mem_calcs(best, sim.population)
-best = gen_in(0, 45)
-hmm = gen_in(295164793806804975616, 190)
-best = gen_in(0, 78)
+# mem_calcs(opt, 10)
+# sum(opt)
+# best = gen_in(35184372088831, 45)
+# mem_calcs(best, sim.population)
+# best = gen_in(0, 45)
+# hmm = gen_in(295164793806804975616, 190)
+# best = gen_in(0, 78)
 
 # for i in 2:20
 #     nom = i
@@ -32,48 +32,48 @@ best = gen_in(0, 78)
 #     end
 # end
 
-best = gen_in(0, 13)
-mem_calcs(best, sim.population)
-sum(best)
-println(best)
-best_eval = objective(best, sim.population, sim.restrict)
-cur, cur_eval = best, best_eval
-steps_taken = zeros(6)
+# best = gen_in(0, sim.population)
+# best_eval = objective(best, sim.population, sim.restrict)
+# cur, cur_eval = best, best_eval
+# steps_taken = zeros(7)
+cur, cur_eval, steps_taken = initialise(sim.population, sim.restrict)
 
-@profile for i in 0:sim.it_tot
-# for i in 0:sim.it_tot
+cur, step_count = sim_ann(sim.it_tot, sim.population, sim.steptype, sim.obj_function, sim.cooling, sim.init_temp, cur, cur_eval, sim.metropolis, steps_taken)
 
-    # generating and evaluating candidate
-    num = rand((1, 2, 3, 4, 5))
-    cand = sim.steptype[num](cur, sim.population) # changing cur
-    cand_sum = sim.obj_function(cand, sim.population, sim.restrict)
-    # if num == 5
-    #     if cand_sum > cur_eval
-    #         println(cur_eval, " ", cand_sum)
-    #     end
-    # end
-    diff = cur_eval - cand_sum
+# @profile for i in 0:sim.it_tot
+# # for i in 0:sim.it_tot
 
-    t = sim.cooling(i, sim.init_temp, sim.it_tot)
+#     # generating and evaluating candidate
+#     num = rand((1, 2, 3, 4, 5, 6, 7))
+#     cand = sim.steptype[num](cur, sim.population) # changing cur
+#     cand_sum = sim.obj_function(cand, sim.population, sim.restrict)
+#     # if num == 5
+#     #     if cand_sum > cur_eval
+#     #         println(cur_eval, " ", cand_sum)
+#     #     end
+#     # end
+#     diff = cur_eval - cand_sum
 
-    metro = sim.metropolis(t, diff)
-    # println(metro, " m")
-    # println(diff, " diff")
-    if diff < 0 || rand(Float64) < metro
-        cur, cur_eval = cand, cand_sum
-        steps_taken[num] = steps_taken[num] + 1
+#     t = sim.cooling(i, sim.init_temp, sim.it_tot)
+
+#     metro = sim.metropolis(t, diff)
+#     # println(metro, " m")
+#     # println(diff, " diff")
+#     if diff < 0 || rand(Float64) < metro
+#         cur, cur_eval = cand, cand_sum
+#         steps_taken[num] = steps_taken[num] + 1
         
-    # else
-    #     println("NOT TAKEN", i)
-    end
-    # println("--------")
-end
+#     # else
+#     #     println("NOT TAKEN", i)
+#     end
+#     # println("--------")
+# end
 
 # pprof()
-objective(cur, sim.population, sim.restrict)
 sum(cur)
-mem_calcs_full(best, sim.population)
-mem_calcs(cur, sim.population)
+objective(cur, sim.population, sim.restrict)
+mem_calcs_full(cur, sim.population)
+# mem_calcs(cur, sim.population)
 show(stdout, "text/plain", cur)
 steps_taken
 println(cur_eval)
