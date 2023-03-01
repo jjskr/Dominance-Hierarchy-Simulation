@@ -11,7 +11,7 @@ function initialise(pop, res)
     return cur, cur_eval, steps_taken
 end
 
-function sim_ann(it, pop, step_list, obj_fun, cool_fun, init_temp, cur, cur_eval, metro, step_count)
+function sim_ann(it, pop, step_list, obj_fun, res, cool_fun, init_temp, cur, cur_eval, metro, step_count)
     @profile for i in 0:it
         # for i in 0:sim.it_tot
         
@@ -280,10 +280,49 @@ end
 function step8(x, pop)
     newx = copy(x)
     row1 = rand((1:pop-2))
-    row2 = rand((row1:pop-1))
+    row2 = rand((row1+1:pop-1))
     diff = row1 - row2
     if diff > 1
         if row2 < pop - 1
+            for i in 1:diff-1
+                a = newx[row1, row2 - i]
+                b = newx[row1 + i, row2]
+                newx[row1, row2 - i] = b
+                newx[row1 + i, row2] = a
+            end
+            for i in row2+1:pop
+                a = newx[row1, i]
+                b = newx[row2, i]
+                newx[row1, i] = b
+                newx[row2, i] = a
+            end
+        end
+        if row2 == pop - 1
+            for i in 1:diff
+                a = newx[row1, row2 - i]
+                b = newx[row1 + i, row2]
+                newx[row1, row2 - i] = b
+                newx[row1 + i, row2] = a
+            end
+        end
+    end
+    
+    for i in row2+1:pop
+        a = newx[row1, i]
+        b =  newx[row2, i]
+        newx[row1, i] = b
+        newx[row2, i] = a
+    end
+    return newx
+end
+
+function step9(x, pop)
+    newx = copy(x)
+    col1 = rand((2:pop-1))
+    col2 = rand((col1+1:pop))
+    diff = col1 - col2
+    if diff > 1
+        if col2 < pop
             for i in 1:diff-1
                 a = newx[row1, row2 - i]
                 b = newx[row1 + i, row2]
