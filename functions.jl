@@ -19,26 +19,18 @@ function sim_ann(it, pop, step_list, obj_fun, res, cool_fun, init_temp, cur, cur
             num = rand((1, 2, 3, 4, 5, 6, 7))
             cand = step_list[num](cur, pop) # changing cur
             cand_sum = obj_fun(cand, pop, res)
-            # if num == 5
-            #     if cand_sum > cur_eval
-            #         println(cur_eval, " ", cand_sum)
-            #     end
-            # end
+
             diff = cur_eval - cand_sum
         
             t = cool_fun(i, init_temp, it)
         
             metrop = metro(t, diff)
-            # println(metro, " m")
-            # println(diff, " diff")
+
             if diff < 0 || rand(Float64) < metrop
                 cur, cur_eval = cand, cand_sum
                 step_count[num] = step_count[num] + 1
                 
-            # else
-            #     println("NOT TAKEN", i)
             end
-            # println("--------")
         end
     return cur, step_count
 end
@@ -111,6 +103,7 @@ function mem_calcs_full(x, pop)
         if mem_need > max_mem
             max_mem = mem_need
         end
+        # output individuals memory usage
         println(i, ", ", mem_need)
     end
 
@@ -151,13 +144,18 @@ function step(x, pop)
     returns: Suggested next candidate
     """
     newx = copy(x)
+
+    # Random row and column to invert is chosen
     row = rand((1: pop-1))
     col = rand((row+1: pop))
+
+    # Value inverted
     if newx[row, col] == 0
         newx[row, col] = 1
     else
         newx[row, col] = 0
     end
+
     return newx
 end
 
@@ -169,16 +167,21 @@ function step2(x, pop)
     returns: Suggested next candidate
     """
     newx = copy(x)
+    
+    # Two random rows and columns chosen
     row = rand((1: pop-1))
     col = rand((row+1: pop))
+
+    row2 = rand((1: pop-1))
+    col2 = rand((row2+1: pop))
+
+    # Values inverted
     if newx[row, col] == 0
         newx[row, col] = 1
     else
         newx[row, col] = 0
     end
 
-    row2 = rand((1: pop-1))
-    col2 = rand((row2+1: pop))
     if newx[row2, col2] == 0
         newx[row2, col2] = 1
     else
@@ -196,7 +199,11 @@ function step3(x, pop)
     returns: Suggested next candidate
     """
     newx = copy(x)
+
+    # Random row to invert chosen
     row = rand((1: pop-1))
+
+    # Each value in chosen row inverted
     for i in row+1:pop
         e = newx[row, i]
         newx[row, i] = ~e
@@ -212,7 +219,11 @@ function step4(x, pop)
     returns: Suggested next candidate
     """
     newx = copy(x)
+
+    # Random column to invert chosen
     col = rand((2: pop))
+
+    # Each value in chosen column inverted
     for i in 1:col-1
         e = newx[i, col]
         newx[i, col] = ~e
@@ -221,67 +232,97 @@ function step4(x, pop)
 end
 
 function step5(x, pop)
+    """
+    x: Boolean upper-triangular adjacency matrix
+    pop: Total population
+
+    returns: Suggested next candidate
+    """
     newx = copy(x)
+
+    # Random row chosen, column deduced
     row = rand((1:pop-1))
-    # if row in 1:5
-    #     println(row)
-    # end
-    col = pop + 1 - row
-    # println(row, ", row")
-    # println("sum: ", sum(x[row, :]))
-    # println(row)
-    # println(col)
+
     if sum(x[row, :]) == pop - row
         while sum(x[row, :]) == pop - row
             row = rand((1:pop-1))
         end
     end
 
+    col = pop + 1 - row
+
+    # Change all values in row to True
     for i in row+1:pop
-        newx[row, i] = 1
+        newx[row, i] = true
     end
+
     for i in row+1:pop-1
-        newx[i, col] = 0
+        newx[i, col] = false
     end
 
     return newx
 end
 
 function step6(x, pop)
+    """
+    x: Boolean upper-triangular adjacency matrix
+    pop: Total population
+
+    returns: Suggested next candidate
+    """
     newx = copy(x)
+
+    # Random row chosen, column deduced
     row = rand((1:pop-1))
     col = pop + 1 - row
-    # println(row, ", row")
-    # println("sum: ", sum(x[row, :]))
-    # println(row)
-    # println(col)
+
     if sum(x[row, :]) < pop - row
         for i in row+1:pop
-            newx[row, i] = 0
+            newx[row, i] = false
         end
         for i in 1:row-1
-            newx[i, row] = 1
+            newx[i, row] = true
         end
     end
     return newx
 end
 
 function step7(x, pop)
+    """
+    x: Boolean upper-triangular adjacency matrix
+    pop: Total population
+
+    returns: Suggested next candidate
+    """
     newx = copy(x)
+
+    # Random row chosen
     row = rand((1:pop-1))
+
     if sum(x[row, :]) < 0.5*(pop - row)
         for i in row+1:pop
-            newx[row, i] = 1
+            newx[row, i] = true
         end
     end
     return newx
 end
 
 function step8(x, pop)
+    """
+    x: Boolean upper-triangular adjacency matrix
+    pop: Total population
+
+    returns: Suggested next candidate
+    """
     newx = copy(x)
+
+    # Two rows chosen at random
     row1 = rand((1:pop-2))
     row2 = rand((row1+1:pop-1))
+
+    # Calculate difference between row numbers
     diff = row1 - row2
+
     if diff > 1
         if row2 < pop - 1
             for i in 1:diff-1
@@ -317,6 +358,12 @@ function step8(x, pop)
 end
 
 function step9(x, pop)
+    """
+    x: Boolean upper-triangular adjacency matrix
+    pop: Total population
+
+    returns: Suggested next candidate
+    """
     newx = copy(x)
     col1 = rand((2:pop-1))
     col2 = rand((col1+1:pop))
