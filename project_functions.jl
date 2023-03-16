@@ -57,10 +57,15 @@ function mem_calcs(x, pop)
     # memory calculations
     max_mem = 0
     tot_mem = 0
+    mix_mem = 0
     for i in 1:pop
 
         def = max(dove[i], hawk[i], mix_ar[i])
         mem_need = pop - 1 - def
+
+        if mix_ar[i] != def
+            mix_mem += mix_ar[i]
+        end
 
         tot_mem = tot_mem + mem_need
         if mem_need > max_mem
@@ -69,7 +74,7 @@ function mem_calcs(x, pop)
         # println(i, ", ", mem_need)
     end
 
-    return max_mem, tot_mem
+    return max_mem, tot_mem, mix_mem
 end
 
 function mem_calcs_full(x, pop)
@@ -91,13 +96,20 @@ function mem_calcs_full(x, pop)
         mix_ar[i] = mixes
     end
 
+
     # memory calculations
     max_mem = 0
     tot_mem = 0
+    mix_mem = 0
     for i in 1:pop
 
         def = max(dove[i], hawk[i], mix_ar[i])
+        println(dove[i], hawk[i], mix_ar[i])
         mem_need = pop - 1 - def
+
+        if mix_ar[i] != def
+            mix_mem += mix_ar[i]
+        end
 
         tot_mem = tot_mem + mem_need
         if mem_need > max_mem
@@ -107,7 +119,7 @@ function mem_calcs_full(x, pop)
         println(i, ", ", mem_need)
     end
 
-    return max_mem, tot_mem
+    return max_mem, tot_mem, mix_mem
 end
 
 function objective(x, n_agents, res, args=(200, 10))
@@ -120,7 +132,7 @@ function objective(x, n_agents, res, args=(200, 10))
     returns: Cost of strategy matrix
     """
     res_inf, tot_inf = args[1], args[2]
-    mem, tot = mem_calcs(x, n_agents)
+    mem, tot, mix = mem_calcs(x, n_agents)
     
     # calculating memory usage
     mem_diff = mem - res
@@ -133,7 +145,7 @@ function objective(x, n_agents, res, args=(200, 10))
 
     tot_v = tot/n_agents
 
-    return sum(x)*(2/((n_agents-1)*n_agents)) - 90*mem_v*(2/n_agents) #- tot_v*((0.5*n_agents)*(1/((0.5*n_agents)-1)))
+    return sum(x)*(2/((n_agents-1)*n_agents)) - 90*mem_v*(2/n_agents) - tot_v*(1/((0.5*n_agents)*((0.5*n_agents)-1)))
 end
 
 function step1(x, pop)
