@@ -1,0 +1,35 @@
+using GraphRecipes, Plots, LightGraphs
+
+function graph_matrix(x, pop)
+    p = pop
+    A = Float64[ rand() < 0.5 ? 0 : rand() for i=1:p, j=1:p]
+    println(A)
+    for i=1:p
+        A[i, 1:i-1] = A[1:i-1, i]
+        A[i, i] = 0
+    end
+    graphplot(A, markersize = 0.2,
+        #   node_weights = 1:p,
+        #   markercolor = range(colorant"yellow", stop=colorant"red", length=p),
+          names = 1:p,
+          fontsize = 10,
+          linecolor = :darkgrey
+          )
+end
+
+# graph_matrix(cur, 15)
+g = wheel_graph(sim.population)
+graphplot(g, curves=false)
+nodelabels = 1:sim.population
+# gr = SimpleGraph(sim.population)
+# add_edge!(gr,1,5)
+# add_edge!(gr,2,4)
+# add_edge!(gr,3,4)
+# add_edge!(gr,4,5)
+# graphplot(gr)
+test_graph = LightGraphs.DiGraph(cur)
+graphplot(test_graph)
+g = LightGraphs.path_graph(10)
+am = Matrix(LightGraphs.adjacency_matrix(g))
+loc_x, loc_y = layout_spring_adj(am)
+LightGraphs.draw_layout_adj(am)
