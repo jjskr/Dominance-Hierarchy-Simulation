@@ -1,7 +1,13 @@
 using Random, Profile, PProf
 
 function initialise(pop, res)
+    """
+    pop: Population size
+    res: Memory restrictions
 
+    returns: Initial matrix, initial objective value, initial step count
+    """
+    # Initialise matrix, solution and step count matrix
     best = gen_in(0, pop)
     best_eval = objective(best, pop, res)
     cur, cur_eval = best, best_eval
@@ -11,28 +17,53 @@ function initialise(pop, res)
 end
 
 function sim_ann(it, pop, step_list, obj_fun, res, cool_fun, init_temp, cur, cur_eval, metro, step_count)
+    """
+    it: Number of iterations
+    pop: Population size
+    step_list: List of possible steps
+    res: Memory restriction
+    cool_fun: Cooling function
+    init_temp: Initial simulated annealing temperature
+    cur: Current state
+    cur_eval: Current objective value
+    metro: Hasting-Metropolis function
+    step_count: Initial step count
+    
+    returns: Best obj value, best state found by simulated annealing and final step count
+    """
+
+    # Initial best set to 0
+    best = 0
+    best_cur = 0
+
     for i in 0:it
-            # generating and evaluating candidate
-            num = rand((1, 2, 3, 4, 5, 6, 7, 8))
+        # generating and evaluating candidate
+        num = rand((1, 2, 3, 4, 5, 6, 7, 8)) # step chosen randomly
 
-            cand = step_list[num](cur, pop) # changing cur
+        cand = step_list[num](cur, pop) # candidate chosen
 
-            cand_sum = obj_fun(cand, pop, res)
+        cand_sum = obj_fun(cand, pop, res) # candidate objective solution
 
-            diff = cur_eval - cand_sum
+        diff = cur_eval - cand_sum # difference between current and candidate solutions
 
-            t = cool_fun(i, init_temp, it)
+        t = cool_fun(i, init_temp, it) # temperature calculation
 
-            metrop = metro(t, diff)
+        metrop = metro(t, diff) # metropolis calculation
 
-            if diff < 0 || rand(Float64) < metrop
-                cur, cur_eval = cand, cand_sum
-                step_count[num] = step_count[num] + 1
-                
-            end
-
+        # check if candidate replaces current state
+        if diff < 0 || rand(Float64) < metrop
+            cur, cur_eval = cand, cand_sum
+            step_count[num] = step_count[num] + 1           
+        end
+        
+        # keep track of best solution
+        if cand_sum > best
+            best = cand_sum
+            best_cur = cur
+        end
+            
     end
-    return cur, step_count
+    return best, best_cur, step_count
 end
 
 function mem_calcs(x, pop)
@@ -58,16 +89,20 @@ function mem_calcs(x, pop)
     max_mem = 0
     tot_mem = 0
     mix_mem = 0
+
     for i in 1:pop
 
-        def = max(dove[i], hawk[i], mix_ar[i])
-        mem_need = pop - 1 - def
+        def = max(dove[i], hawk[i], mix_ar[i]) # assign default action
+        mem_need = pop - 1 - def # calculate memory requirement
 
+        # monitor memory used for mixed strategy
         if mix_ar[i] != def
             mix_mem += mix_ar[i]
         end
 
-        tot_mem = tot_mem + mem_need
+        tot_mem = tot_mem + mem_need # update total memory usage
+
+        # check if memory restriction is violated
         if mem_need > max_mem
             max_mem = mem_need
         end
@@ -95,7 +130,6 @@ function mem_calcs_full(x, pop)
         mixes = pop-1 - hawk[i] - dove[i]
         mix_ar[i] = mixes
     end
-
 
     # memory calculations
     max_mem = 0
@@ -134,7 +168,7 @@ function objective(x, n_agents, res, args=(200, 10))
     res_inf, tot_inf = args[1], args[2]
     mem, tot, mix = mem_calcs(x, n_agents)
     
-    # calculating memory usage
+    # calculating memory violation
     mem_diff = mem - res
 
     if mem_diff < 1
@@ -143,9 +177,7 @@ function objective(x, n_agents, res, args=(200, 10))
         mem_v = mem_diff
     end
 
-    tot_v = tot/n_agents
-
-    return sum(x)*(2/((n_agents-1)*n_agents)) - 90*mem_v*(2/n_agents) - tot_v*(1/((0.5*n_agents)*((0.5*n_agents)-1)))
+    return sum(x)*(2/((n_agents-1)*n_agents)) - 90*mem_v*(2/n_agents) - tot*(1/((0.5*n_agents)*((0.5*n_agents)-1))) - mix
 end
 
 function step1(x, pop)
