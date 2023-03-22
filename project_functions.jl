@@ -45,7 +45,7 @@ function sim_ann(it, pop, step_list, obj_fun, res, cool_fun, init_temp, current,
         cand_sum = obj_fun(cand, pop, res) # candidate objective solution
 
         diff = current_eval - cand_sum # difference between current and candidate solutions
-
+        # diff = cand_sum - current_eval
         t = cool_fun(i, init_temp, it) # temperature calculation
 
         metrop = metro(t, diff) # metropolis calculation
@@ -188,9 +188,9 @@ function objective(x, n_agents, res, args=(200, 10))
     else
         mem_v = mem_diff
     end
-    
+
     # problem is with co-efficients
-    return sum(x)*(2/((n_agents-1)*n_agents)) - mem_v*(2/n_agents) - tot*(1/((0.5*n_agents)*((0.5*n_agents)-1))) #- mix/n_agents*n_agents
+    return sum(x)*(2/((n_agents-1)*n_agents)) - 100*mem_v*(2/n_agents) #- 0.28*tot*(1/((0.5*n_agents)*((0.5*n_agents)-1))) #- mix/n_agents*n_agents
 end
 
 function step1(x, pop)
@@ -295,29 +295,35 @@ function step5(x, pop)
 
     returns: Suggested next candidate
     """
-    newx = copy(x)
 
-    # Random row chosen
-    row = rand((1:pop-1))
+    if sum(x) == ((pop*pop)-pop)/2
 
-    # This is a fraudulent while loop
-    # if sum(x[row, :]) == pop - row
-    #     while sum(x[row, :]) == pop - row
-    #         row = rand((1:pop-1))
-    #     end
-    # end
+        return x
+    else
+        newx = copy(x)
 
-    col = pop + 1 - row
+        # Random row chosen
+        row = rand((1:pop-1))
 
-    # Change all values in row to True
-    for i in row+1:pop
-        newx[row, i] = 1
+        # This is a fraudulent while loop
+        if sum(x[row, :]) == pop - row
+            while sum(x[row, :]) == pop - row
+                row = rand((1:pop-1))
+            end
+        end
+
+        col = pop + 1 - row
+
+        # Change all values in row to True
+        for i in row+1:pop
+            newx[row, i] = 1
+        end
+
+        for i in row+1:pop-1
+            newx[i, col] = 0
+        end
     end
-
-    for i in row+1:pop-1
-        newx[i, col] = 0
-    end
-
+    
     return newx
 end
 
