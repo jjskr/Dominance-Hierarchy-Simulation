@@ -16,7 +16,7 @@ function initialise(pop, res)
     return cur, cur_eval, steps_taken
 end
 
-function sim_ann(it, pop, step_list, obj_fun, res, cool_fun, init_temp, cur, cur_eval, metro, step_count)
+function sim_ann(it, pop, step_list, obj_fun, res, cool_fun, init_temp, current, current_eval, metro, step_count)
     """
     it: Number of iterations
     pop: Population size
@@ -33,18 +33,18 @@ function sim_ann(it, pop, step_list, obj_fun, res, cool_fun, init_temp, cur, cur
     """
 
     # Initial best set to 0
-    best = 0
-    best_cur = 0
+    # best = -100
+    # best_cur = 0
 
     for i in 0:it
         # generating and evaluating candidate
         num = rand((1, 2, 3, 4, 5, 6, 7, 8)) # step chosen randomly
 
-        cand = step_list[num](cur, pop) # candidate chosen
+        cand = step_list[num](current, pop) # candidate chosen
 
         cand_sum = obj_fun(cand, pop, res) # candidate objective solution
 
-        diff = cur_eval - cand_sum # difference between current and candidate solutions
+        diff = current_eval - cand_sum # difference between current and candidate solutions
 
         t = cool_fun(i, init_temp, it) # temperature calculation
 
@@ -52,18 +52,30 @@ function sim_ann(it, pop, step_list, obj_fun, res, cool_fun, init_temp, cur, cur
 
         # check if candidate replaces current state
         if diff < 0 || rand(Float64) < metrop
-            cur, cur_eval = cand, cand_sum
-            step_count[num] = step_count[num] + 1           
+            current, current_eval = cand, cand_sum
+            step_count[num] = step_count[num] + 1
+            # if cur_eval > best
+            #     println(it)
+            #     best = cur_eval
+            #     best_cur = cur
+            # end          
         end
-        
+
+        if i == 50000
+            show(stdout, "text/plain", current)
+            sum(current)
+            mem_calcs_full(current, pop)
+            println(obj_fun(current, pop, res))
+        end
         # keep track of best solution
-        if cand_sum > best
-            best = cand_sum
-            best_cur = cur
-        end
+        # if cur_eval > best
+        #     println(i)
+        #     best = cur_eval
+        #     best_cur = cur
+        # end
             
     end
-    return best, best_cur, step_count
+    return current, current_eval, step_count
 end
 
 function mem_calcs(x, pop)
@@ -177,7 +189,7 @@ function objective(x, n_agents, res, args=(200, 10))
         mem_v = mem_diff
     end
 
-    return sum(x)*(2/((n_agents-1)*n_agents)) - 90*mem_v*(2/n_agents) - tot*(1/((0.5*n_agents)*((0.5*n_agents)-1))) - mix
+    return sum(x)*(2/((n_agents-1)*n_agents)) - 90*mem_v*(2/n_agents)# - tot*(1/((0.5*n_agents)*((0.5*n_agents)-1)))# - mix
 end
 
 function step1(x, pop)
@@ -317,10 +329,10 @@ function step6(x, pop)
     """
     newx = copy(x)
 
-    # Random row chosen, column deduced
+    # Random row chosen
     row = rand((1:pop-1))
-    col = pop + 1 - row
 
+    # if row is not already complete, completed
     if sum(x[row, :]) < pop - row
         for i in row+1:pop
             newx[row, i] = 0
@@ -329,6 +341,7 @@ function step6(x, pop)
             newx[i, row] = 1
         end
     end
+
     return newx
 end
 
