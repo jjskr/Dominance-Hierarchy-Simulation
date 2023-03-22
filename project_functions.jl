@@ -33,8 +33,8 @@ function sim_ann(it, pop, step_list, obj_fun, res, cool_fun, init_temp, current,
     """
 
     # Initial best set to 0
-    # best = -100
-    # best_cur = 0
+    best = -100
+    best_cur = 0
 
     for i in 0:it
         # generating and evaluating candidate
@@ -61,21 +61,21 @@ function sim_ann(it, pop, step_list, obj_fun, res, cool_fun, init_temp, current,
             # end          
         end
 
-        if i == 50000
-            show(stdout, "text/plain", current)
-            sum(current)
-            mem_calcs_full(current, pop)
-            println(obj_fun(current, pop, res))
-        end
-        # keep track of best solution
-        # if cur_eval > best
-        #     println(i)
-        #     best = cur_eval
-        #     best_cur = cur
+        # if i == 50000
+        #     show(stdout, "text/plain", current)
+        #     sum(current)
+        #     mem_calcs_full(current, pop)
+        #     println(obj_fun(current, pop, res))
         # end
+        # keep track of best solution
+        if current_eval > best
+            # println(i)
+            best = current_eval
+            best_cur = current
+        end
             
     end
-    return current, current_eval, step_count
+    return current, current_eval, step_count, best, best_cur
 end
 
 function mem_calcs(x, pop)
@@ -188,8 +188,9 @@ function objective(x, n_agents, res, args=(200, 10))
     else
         mem_v = mem_diff
     end
-
-    return sum(x)*(2/((n_agents-1)*n_agents)) - 90*mem_v*(2/n_agents)# - tot*(1/((0.5*n_agents)*((0.5*n_agents)-1)))# - mix
+    
+    # problem is with co-efficients
+    return sum(x)*(2/((n_agents-1)*n_agents)) - mem_v*(2/n_agents) - tot*(1/((0.5*n_agents)*((0.5*n_agents)-1))) #- mix/n_agents*n_agents
 end
 
 function step1(x, pop)
@@ -296,15 +297,15 @@ function step5(x, pop)
     """
     newx = copy(x)
 
-    # Random row chosen, column deduced
+    # Random row chosen
     row = rand((1:pop-1))
 
     # This is a fraudulent while loop
-    if sum(x[row, :]) == pop - row
-        while sum(x[row, :]) == pop - row
-            row = rand((1:pop-1))
-        end
-    end
+    # if sum(x[row, :]) == pop - row
+    #     while sum(x[row, :]) == pop - row
+    #         row = rand((1:pop-1))
+    #     end
+    # end
 
     col = pop + 1 - row
 
