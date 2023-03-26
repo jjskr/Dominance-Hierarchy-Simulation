@@ -16,7 +16,7 @@ function initialise(pop, res)
     return cur, cur_eval, steps_taken
 end
 
-function sim_ann(it, pop, step_list, obj_fun, res, cool_fun, init_temp, current, current_eval, metro, step_count)
+function sim_ann(it, pop, step_list, obj_fun, res, cool_fun, init_temp, current, current_eval, metro, step_count, sa=False, args=0)
     """
     it: Number of iterations
     pop: Population size
@@ -33,12 +33,12 @@ function sim_ann(it, pop, step_list, obj_fun, res, cool_fun, init_temp, current,
     """
 
     # Initial best set to 0
-    best = -100
-    best_cur = 0
+    best = current_eval
+    best_cur = current
 
     for i in 0:it
         # generating and evaluating candidate
-        num = rand((1, 2, 3, 4, 5, 6, 7, 8)) # step chosen randomly
+        num = rand((1:length(step_list))) # step chosen randomly
 
         cand = step_list[num](current, pop) # candidate chosen
 
@@ -78,7 +78,7 @@ function sim_ann(it, pop, step_list, obj_fun, res, cool_fun, init_temp, current,
     return current, current_eval, step_count, best, best_cur
 end
 
-function mem_calcs(x, pop)
+function mem_calcs(x, pop, sa=False, sa_mem=0)
     """
     x: Strategy matrix
     pop: Total population
@@ -93,7 +93,7 @@ function mem_calcs(x, pop)
     mix_ar = zeros(Int64, pop, 1)
 
     for i in 1:pop
-        mixes = pop-1 - hawk[i] - dove[i]
+        mixes = pop - 1 - hawk[i] - dove[i]
         mix_ar[i] = mixes
     end
 
@@ -103,20 +103,54 @@ function mem_calcs(x, pop)
     mix_mem = 0
 
     for i in 1:pop
+        
+        if sa
+            if i == sa(1)
+                def = max(dove[i], hawk[i], mix_ar[i]) # assign default action
+                mem_need = pop - 1 - def # calculate memory requirement
+    
+                # monitor memory used for mixed strategy
+                if mix_ar[i] != def
+                    mix_mem += mix_ar[i]
+                end
+    
+                tot_mem = tot_mem + mem_need # update total memory usage
+    
+                # check if memory restriction is violated
+                # if mem_need > max_mem
+                #     max_mem = mem_need
+                # end
+            else
+                def = max(dove[i], hawk[i], mix_ar[i]) # assign default action
+                mem_need = pop - 1 - def # calculate memory requirement
+    
+                # monitor memory used for mixed strategy
+                if mix_ar[i] != def
+                    mix_mem += mix_ar[i]
+                end
+    
+                tot_mem = tot_mem + mem_need # update total memory usage
+    
+                # check if memory restriction is violated
+                if mem_need > max_mem
+                    max_mem = mem_need
+                end
+            end
+        else
+            def = max(dove[i], hawk[i], mix_ar[i]) # assign default action
+            mem_need = pop - 1 - def # calculate memory requirement
 
-        def = max(dove[i], hawk[i], mix_ar[i]) # assign default action
-        mem_need = pop - 1 - def # calculate memory requirement
+            # monitor memory used for mixed strategy
+            if mix_ar[i] != def
+                mix_mem += mix_ar[i]
+            end
 
-        # monitor memory used for mixed strategy
-        if mix_ar[i] != def
-            mix_mem += mix_ar[i]
-        end
+            tot_mem = tot_mem + mem_need # update total memory usage
 
-        tot_mem = tot_mem + mem_need # update total memory usage
-
-        # check if memory restriction is violated
-        if mem_need > max_mem
-            max_mem = mem_need
+            # check if memory restriction is violated
+            if mem_need > max_mem
+                max_mem = mem_need
+            end
         end
         # println(i, ", ", mem_need)
     end
@@ -168,7 +202,7 @@ function mem_calcs_full(x, pop)
     return max_mem, tot_mem, mix_mem
 end
 
-function objective(x, n_agents, res, args=(200, 10))
+function objective(x, n_agents, res, args=(100, 0.28), sa=False, sa_mem=0)
     """
     x: Strategy matrix
     n_agents: Total population
@@ -190,7 +224,7 @@ function objective(x, n_agents, res, args=(200, 10))
     end
 
     # problem is with co-efficients
-    return sum(x)*(2/((n_agents-1)*n_agents)) - 100*mem_v*(2/n_agents) #- 0.28*tot*(1/((0.5*n_agents)*((0.5*n_agents)-1))) #- mix/n_agents*n_agents
+    return sum(x)*(2/((n_agents-1)*n_agents))# - res_inf*mem_v*(2/(n_agents-1)) - tot_inf*tot*(1/((0.5*n_agents)*((0.5*n_agents)-1)))# - mix/n_agents#*n_agents
 end
 
 function step1(x, pop)
@@ -304,6 +338,7 @@ function step5(x, pop)
 
         # Random row chosen
         row = rand((1:pop-1))
+        # println(row)
 
         # This is a fraudulent while loop
         if sum(x[row, :]) == pop - row
@@ -315,15 +350,14 @@ function step5(x, pop)
         col = pop + 1 - row
 
         # Change all values in row to True
+        for i in 1:col-1
+            newx[i, col] = 0
+        end
         for i in row+1:pop
             newx[row, i] = 1
         end
-
-        for i in row+1:pop-1
-            newx[i, col] = 0
-        end
     end
-    
+
     return newx
 end
 
