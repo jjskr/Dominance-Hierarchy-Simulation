@@ -15,17 +15,20 @@ end
 
 # Initialising struct
 # sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step8, step9], objective, cool_fun, metro_fun, 10, 3, 13, 100000)
-sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step8, step9], objective, cool_fun, metro_fun, 10, 4, 12, 100000)
+sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step8, step9], objective, cool_fun, metro_fun, 10, 2, 12, 100000)
 
 # opt = gen_in(35146671702464, 10)
 
 # Initialising values and step count list
 cur, cur_eval, steps_taken = initialise(sim.population, sim.restrict)
 
+# Initialising arguments
+args = [100, 0.28, 6, 12]
+
 # Simulated Annealing
-new, new_eval, step_count, best_sol, best_eval = sim_ann(sim.it_tot, sim.population, sim.steptype, sim.obj_function, sim.restrict, sim.cooling, sim.init_temp, cur, cur_eval, sim.metropolis, steps_taken)
+new, new_eval, step_count, best_sol, best_eval = sim_ann(sim.it_tot, sim.population, sim.steptype, sim.obj_function, sim.restrict, sim.cooling, sim.init_temp, cur, cur_eval, sim.metropolis, steps_taken, true, args)
 show(stdout, "text/plain", best_eval)
-new, new_eval, step_count, best_sol, best_eval = sim_ann(sim.it_tot, sim.population, sim.steptype, sim.obj_function, sim.restrict, sim.cooling, sim.init_temp, best_eval, best_sol, sim.metropolis, steps_taken)
+new, new_eval, step_count, best_sol, best_eval = sim_ann(sim.it_tot, sim.population, sim.steptype, objective_mix, sim.restrict, sim.cooling, sim.init_temp, best_eval, best_sol, sim.metropolis, steps_taken, true, args)
 show(stdout, "text/plain", best_eval)
 sum(best_eval)
 mem_calcs_full(best_eval, 12)
