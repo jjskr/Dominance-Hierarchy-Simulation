@@ -16,7 +16,7 @@ function initialise(pop, res)
     return cur, cur_eval, steps_taken
 end
 
-function sim_ann(it, pop, step_list, obj_fun, res, cool_fun, init_temp, current, current_eval, metro, step_count, sa=False, args=0)
+function sim_ann(it, pop, step_list, obj_fun, res, cool_fun, init_temp, current, current_eval, metro, step_count, sa=false, args=[100, 0.28, 0, 0])
     """
     it: Number of iterations
     pop: Population size
@@ -35,14 +35,14 @@ function sim_ann(it, pop, step_list, obj_fun, res, cool_fun, init_temp, current,
     # Initial best set to 0
     best = current_eval
     best_cur = current
-
+    println(sa)
     for i in 0:it
         # generating and evaluating candidate
         num = rand((1:length(step_list))) # step chosen randomly
 
         cand = step_list[num](current, pop) # candidate chosen
 
-        cand_sum = obj_fun(cand, pop, res) # candidate objective solution
+        cand_sum = obj_fun(cand, pop, res, sa, args) # candidate objective solution
 
         diff = current_eval - cand_sum # difference between current and candidate solutions
         # diff = cand_sum - current_eval
@@ -78,13 +78,14 @@ function sim_ann(it, pop, step_list, obj_fun, res, cool_fun, init_temp, current,
     return current, current_eval, step_count, best, best_cur
 end
 
-function mem_calcs(x, pop, sa=False, sa_mem=0)
+function mem_calcs(x, pop, sa=false, args=[100, 0.28, 0, 0])
     """
     x: Strategy matrix
     pop: Total population
 
     returns: Maximum individual memory, total memory
     """
+    sa_agent, sa_mem = args[3], args[4]
     # calculating hawk and dove strategies
     dove = sum(x, dims=1)
     hawk = sum(eachcol(x))
@@ -105,7 +106,8 @@ function mem_calcs(x, pop, sa=False, sa_mem=0)
     for i in 1:pop
         
         if sa
-            if i == sa(1)
+            if i == sa_agent
+                
                 def = max(dove[i], hawk[i], mix_ar[i]) # assign default action
                 mem_need = pop - 1 - def # calculate memory requirement
     
@@ -114,7 +116,7 @@ function mem_calcs(x, pop, sa=False, sa_mem=0)
                     mix_mem += mix_ar[i]
                 end
     
-                tot_mem = tot_mem + mem_need # update total memory usage
+                #tot_mem = tot_mem + mem_need # update total memory usage
     
                 # check if memory restriction is violated
                 # if mem_need > max_mem
@@ -202,7 +204,7 @@ function mem_calcs_full(x, pop)
     return max_mem, tot_mem, mix_mem
 end
 
-function objective(x, n_agents, res, args=(100, 0.28), sa=False, sa_mem=0)
+function objective(x, n_agents, res, sa=false, args=[100, 0.28, 0, 0])
     """
     x: Strategy matrix
     n_agents: Total population
@@ -211,7 +213,32 @@ function objective(x, n_agents, res, args=(100, 0.28), sa=False, sa_mem=0)
 
     returns: Cost of strategy matrix
     """
-    res_inf, tot_inf = args[1], args[2]
+    res_inf, tot_inf, sa_agent, sa_mem = args[1], args[2], args[3], args[4]
+    mem, tot, mix = mem_calcs(x, n_agents, sa, args)
+    
+    # calculating memory violation
+    mem_diff = mem - res
+
+    if mem_diff < 1
+        mem_v = 0
+    else
+        mem_v = mem_diff
+    end
+
+    # problem is with co-efficients
+    return sum(x)*(2/((n_agents-1)*n_agents)) - res_inf*mem_v*(2/(n_agents-1)) - tot_inf*tot*(1/((0.5*n_agents)*((0.5*n_agents)-1)))# - 0.1*mix/n_agents*n_agents
+end
+
+function objective_mix(x, n_agents, res, sa=false, args=[100, 0.28, 0, 0])
+    """
+    x: Strategy matrix
+    n_agents: Total population
+    res: Memory restriction
+    args: args for objective function
+
+    returns: Cost of strategy matrix
+    """
+    res_inf, tot_inf, sa_agent, sa_mem = args[1], args[2], args[3], args[4]
     mem, tot, mix = mem_calcs(x, n_agents)
     
     # calculating memory violation
@@ -224,7 +251,7 @@ function objective(x, n_agents, res, args=(100, 0.28), sa=False, sa_mem=0)
     end
 
     # problem is with co-efficients
-    return sum(x)*(2/((n_agents-1)*n_agents))# - res_inf*mem_v*(2/(n_agents-1)) - tot_inf*tot*(1/((0.5*n_agents)*((0.5*n_agents)-1)))# - mix/n_agents#*n_agents
+    return sum(x)*(2/((n_agents-1)*n_agents)) - res_inf*mem_v*(2/(n_agents-1)) - tot_inf*tot*(1/((0.5*n_agents)*((0.5*n_agents)-1))) - 0.1*mix/n_agents*n_agents
 end
 
 function step1(x, pop)
