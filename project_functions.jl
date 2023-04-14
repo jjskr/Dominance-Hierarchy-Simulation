@@ -1,6 +1,6 @@
 using Random, Profile, PProf
 
-function initialise(pop, res)
+function initialise(pop, res, step_list)
     """
     pop: Population size
     res: Memory restrictions
@@ -11,7 +11,7 @@ function initialise(pop, res)
     best = gen_in(0, pop)
     best_eval = objective(best, pop, res)
     cur, cur_eval = best, best_eval
-    steps_taken = zeros(8)
+    steps_taken = zeros(length(step_list))
 
     return cur, cur_eval, steps_taken
 end
@@ -35,7 +35,11 @@ function sim_ann(it, pop, step_list, obj_fun, res, cool_fun, init_temp, current,
     # Initial best set to 0
     best = current_eval
     best_cur = current
-    println(sa)
+
+    if obj_fun == objective_mix
+        best = objective_mix(current, pop, res)
+    end
+
     for i in 0:it
         # generating and evaluating candidate
         num = rand((1:length(step_list))) # step chosen randomly
@@ -107,7 +111,7 @@ function mem_calcs(x, pop, sa=false, args=[100, 0.28, 0, 0])
         
         if sa
             if i == sa_agent
-                
+
                 def = max(dove[i], hawk[i], mix_ar[i]) # assign default action
                 mem_need = pop - 1 - def # calculate memory requirement
     
@@ -169,7 +173,9 @@ function mem_calcs_full(x, pop)
     """
     # calculating hawk and dove strategies
     dove = sum(x, dims=1)
+    println(dove)
     hawk = sum(eachcol(x))
+    println(hawk)
 
     # calculating mixed strategies
     mix_ar = zeros(Int64, pop, 1)
@@ -186,7 +192,7 @@ function mem_calcs_full(x, pop)
     for i in 1:pop
 
         def = max(dove[i], hawk[i], mix_ar[i])
-        println(dove[i], hawk[i], mix_ar[i])
+        println("Dove ", dove[i], " Hawk ", hawk[i], " Mix ", mix_ar[i])
         mem_need = pop - 1 - def
 
         if mix_ar[i] != def
@@ -204,7 +210,7 @@ function mem_calcs_full(x, pop)
     return max_mem, tot_mem, mix_mem
 end
 
-function objective(x, n_agents, res, sa=false, args=[100, 0.28, 0, 0])
+function objective(x, n_agents, res, sa=false, args=[100, 0.35, 0, 0])
     """
     x: Strategy matrix
     n_agents: Total population
@@ -256,6 +262,7 @@ end
 
 function step1(x, pop)
     """
+    Function turns one entry
     x: Boolean upper-triangular adjacency matrix
     pop: Total population
 
@@ -279,6 +286,7 @@ end
 
 function step2(x, pop)
     """
+    Function turns two entries
     x: Boolean upper-triangular adjacency matrix
     pop: Total population
 
@@ -311,6 +319,7 @@ end
 
 function step3(x, pop)
     """
+    Function inverts row
     x: Boolean upper-triangular adjacency matrix
     pop: Total population
 
@@ -331,6 +340,7 @@ end
 
 function step4(x, pop)
     """
+    Function inverts column
     x: Boolean upper-triangular adjacency matrix
     pop: Total population
 
@@ -351,6 +361,7 @@ end
 
 function step5(x, pop)
     """
+    Function turns row to 1 and column to 0
     x: Boolean upper-triangular adjacency matrix
     pop: Total population
 
@@ -390,6 +401,7 @@ end
 
 function step6(x, pop)
     """
+    Function turns row to 1
     x: Boolean upper-triangular adjacency matrix
     pop: Total population
 
@@ -415,6 +427,7 @@ end
 
 function step7(x, pop)
     """
+    Function turns row to 1
     x: Boolean upper-triangular adjacency matrix
     pop: Total population
 
@@ -428,6 +441,27 @@ function step7(x, pop)
     if sum(x[row, :]) < 0.5*(pop - row)
         for i in row+1:pop
             newx[row, i] = 1
+        end
+    end
+    return newx
+end
+
+function step10(x, pop)
+    """
+    Function turns row to 1
+    x: Boolean upper-triangular adjacency matrix
+    pop: Total population
+
+    returns: Suggested next candidate
+    """
+    newx = copy(x)
+
+    # Random row chosen
+    col = rand((1:pop-1))
+
+    if sum(x[:, col]) < col-1
+        for i in 1:col-1
+            newx[i, col] = 1
         end
     end
     return newx
@@ -496,7 +530,7 @@ function step9(x, pop)
     newx = copy(x)
     col1 = rand((2:pop-1))
     col2 = rand((col1+1:pop))
-    diff = col1 - col2
+    diff = col2 - col1
     if diff > 1
         if col1 > 2
             for i in 1:col1-1
@@ -522,7 +556,106 @@ function step9(x, pop)
         # end
     end
     
-    if diff < 0
+    if diff == 1
+        for i in 1:col1-1
+            a = newx[i, col1]
+            b = newx[i, col2]
+            newx[i, col1] = b
+            newx[i, col2] = a
+        end
+    end
+    return newx
+end
+
+function step11(x, pop)
+    """
+    x: Boolean upper-triangular adjacency matrix
+    pop: Total population
+
+    returns: Suggested next candidate
+    """
+    newx = copy(x)
+
+    # Two rows chosen at random
+    row1 = rand((1:pop-2))
+    row2 = rand((row1+1:pop-1))
+
+    # Calculate difference between row numbers
+    diff = row2 - row1
+
+    if diff > 1
+        for i in 1:diff-1
+            a = newx[row1, row1 + i]
+            b = newx[row2 - i, row2]
+            newx[row1, row1 + i] = b
+            newx[row2 - i, row2] = a
+        end
+        for i in row2+1:pop
+            a = newx[row1, i]
+            b = newx[row2, i]
+            newx[row1, i] = b
+            newx[row2, i] = a
+        end
+        # if row2 == pop - 1
+        #     for i in 1:diff
+        #         a = newx[row1, row2 - i]
+        #         b = newx[row1 + i, row2]
+        #         newx[row1, row2 - i] = b
+        #         newx[row1 + i, row2] = a
+        #     end
+        # end
+    end
+    
+    if diff == 1
+        for i in row2+1:pop
+            a = newx[row1, i]
+            b =  newx[row2, i]
+            newx[row1, i] = b
+            newx[row2, i] = a
+        end
+    end
+
+    return newx
+end
+
+function step12(x, pop)
+    """
+    x: Boolean upper-triangular adjacency matrix
+    pop: Total population
+
+    returns: Suggested next candidate
+    """
+    newx = copy(x)
+    col1 = rand((2:pop-1))
+    col2 = rand((col1+1:pop))
+    diff = col2 - col1
+    # println(diff, " ", col1, col2)
+    if diff > 1
+        if col1 > 2
+            for i in 1:col1-1
+                a = newx[i, col1]
+                b = newx[i, col2]
+                newx[i, col1] = b
+                newx[i, col2] = a
+            end
+            for i in 0:diff-2
+                a = newx[col1, col1+1+i]
+                b = newx[col2-1-i, col2]
+                newx[col1, col1+1+i] = b
+                newx[col2-1-i, col2] = a
+            end
+        end
+        # if row2 == pop - 1
+        #     for i in 1:diff
+        #         a = newx[row1, row2 - i]
+        #         b = newx[row1 + i, row2]
+        #         newx[row1, row2 - i] = b
+        #         newx[row1 + i, row2] = a
+        #     end
+        # end
+    end
+    
+    if diff == 1
         for i in 1:col1-1
             a = newx[i, col1]
             b = newx[i, col2]
