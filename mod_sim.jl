@@ -1,7 +1,6 @@
 using Random, Profile, PProf
 include("project_functions.jl")
-# include("/Users/jackhardy/Documents/4th-Year/Technical Project/Project/model_code/project_functions.jl")
-import Pkg; Pkg.add("ProgressBars")
+# import Pkg; Pkg.add("ProgressBars")
 
 struct SimAnnealing
     steptype
@@ -66,12 +65,12 @@ for i in unique(sol_list)
     if sum(i) > maxi
         maxi = sum(i)
     end
-    if sum(i) == 92
+    if sum(i) == 24
         println("---------------")
         show(stdout, "text/plain", i)
         println("---------------")
         # mem_calcs_full(i, 11)
-        println(mem_calcs(i, 15))
+        println(mem_calcs(i, 10))
         # mem_calcs_full(i, sim.population)
     end
 end
