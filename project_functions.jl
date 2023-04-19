@@ -1,5 +1,12 @@
 using Random, Profile, PProf
 
+function disp_mat(i)
+    """
+    Function displays matrix i
+    """
+    show(stdout, "text/plain", i)
+end
+
 function initialise(pop, res, step_list)
     """
     pop: Population size
@@ -333,7 +340,11 @@ function step3(x, pop)
     # Each value in chosen row inverted
     for i in row+1:pop
         e = newx[row, i]
-        newx[row, i] = ~e
+        if e == 0
+            newx[row, i] = 1
+        else
+            newx[row, i] = 0
+        end
     end
     return newx
 end
@@ -354,7 +365,11 @@ function step4(x, pop)
     # Each value in chosen column inverted
     for i in 1:col-1
         e = newx[i, col]
-        newx[i, col] = ~e
+        if e == 0
+            newx[i, col] = 1
+        else
+            newx[i, col] = 0
+        end
     end
     return newx
 end
@@ -711,10 +726,10 @@ function vec4utri(v)
 
     returns: Upper-triangular adjacency matrix of v
     """
-    zz = false
+    # zz = false
     n = length(v)
     s = round((sqrt(8n+1)-1)/2)
     # s*(s+1)/2 == n || error("vec2utri: length of vector is not triangular")
-    p = [ i<j && i<=s && j<=s ? Bool(v[Int((j)*(j-1)/2+(i+1))]) : zz for i=0:s, j=0:s ]
+    p = [ i<j && i<=s && j<=s ? Bool(v[Int((j)*(j-1)/2+(i+1))]) : false for i=0:s, j=0:s ]
     return p
 end
