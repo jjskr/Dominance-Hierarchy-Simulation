@@ -9,6 +9,8 @@ end
 
 function initialise(pop, res, step_list)
     """
+    Function initialises parameters for simulated annealing
+
     pop: Population size
     res: Memory restrictions
 
@@ -25,6 +27,8 @@ end
 
 function sim_ann(it, pop, step_list, obj_fun, res, cool_fun, init_temp, current, current_eval, metro, step_count, sa=false, args=[100, 0.28, 0, 0])
     """
+    Function carries out simulated annealing algorithm
+
     it: Number of iterations
     pop: Population size
     step_list: List of possible steps
@@ -91,6 +95,8 @@ end
 
 function mem_calcs(x, pop, sa=false, args=[100, 0.28, 0, 0])
     """
+    Function returns memory statistics
+
     x: Strategy matrix
     pop: Total population
 
@@ -173,6 +179,8 @@ end
 
 function mem_calcs_full(x, pop)
     """
+    Function returns memory statistics and prints individual memory and default action usage
+
     x: Strategy matrix
     pop: Total population
 
@@ -219,6 +227,8 @@ end
 
 function objective(x, n_agents, res, sa=false, args=[100, 0.35, 0, 0])
     """
+    Function returns objective function cost
+
     x: Strategy matrix
     n_agents: Total population
     res: Memory restriction
@@ -244,6 +254,8 @@ end
 
 function objective_mix(x, n_agents, res, sa=false, args=[100, 0.28, 0, 0])
     """
+    Function returns objective function cost penalising mixed strategy
+
     x: Strategy matrix
     n_agents: Total population
     res: Memory restriction
@@ -269,7 +281,8 @@ end
 
 function step1(x, pop)
     """
-    Function turns one entry
+    Function changes one entry
+
     x: Boolean upper-triangular adjacency matrix
     pop: Total population
 
@@ -293,7 +306,8 @@ end
 
 function step2(x, pop)
     """
-    Function turns two entries
+    Function changes two entries
+
     x: Boolean upper-triangular adjacency matrix
     pop: Total population
 
@@ -327,6 +341,7 @@ end
 function step3(x, pop)
     """
     Function inverts row
+
     x: Boolean upper-triangular adjacency matrix
     pop: Total population
 
@@ -352,6 +367,7 @@ end
 function step4(x, pop)
     """
     Function inverts column
+
     x: Boolean upper-triangular adjacency matrix
     pop: Total population
 
@@ -377,6 +393,7 @@ end
 function step5(x, pop)
     """
     Function turns row to 1 and column to 0
+
     x: Boolean upper-triangular adjacency matrix
     pop: Total population
 
@@ -417,6 +434,7 @@ end
 function step6(x, pop)
     """
     Function turns row to 1
+
     x: Boolean upper-triangular adjacency matrix
     pop: Total population
 
@@ -443,6 +461,7 @@ end
 function step7(x, pop)
     """
     Function turns row to 1
+
     x: Boolean upper-triangular adjacency matrix
     pop: Total population
 
@@ -463,7 +482,8 @@ end
 
 function step10(x, pop)
     """
-    Function turns row to 1
+    Function turns column to 1
+
     x: Boolean upper-triangular adjacency matrix
     pop: Total population
 
@@ -484,6 +504,8 @@ end
 
 function step8(x, pop)
     """
+    Function swaps two agents fighting actions, column values
+
     x: Boolean upper-triangular adjacency matrix
     pop: Total population
 
@@ -584,6 +606,8 @@ end
 
 function step11(x, pop)
     """
+    Function swaps two agents fighting actions
+
     x: Boolean upper-triangular adjacency matrix
     pop: Total population
 
@@ -635,6 +659,8 @@ end
 
 function step12(x, pop)
     """
+    Function swaps two agents fighting actions
+
     x: Boolean upper-triangular adjacency matrix
     pop: Total population
 
@@ -683,6 +709,8 @@ end
 
 function cool_fun(it, in_temp, iters)
     """
+    Function returns temperature at current iteration
+
     t: iteration number
     temp: initial temperature
     iters: total number of iterations
@@ -695,6 +723,8 @@ end
 
 function metro_fun(temp, difference)
     """
+    Function returns metropolis hastings value at given temperature and cost difference
+
     temp: current temperature
     difference: cost difference between current and candidate
 
@@ -706,7 +736,10 @@ end
 
 function gen_in(no, pop)
     """
-    no: Number to turn into BitArray/Bool matrix
+    Function generates boolean upper-triangular Matrix
+
+    no: number to turn into BitArray/Bool matrix
+    pop: population size
 
     returns: Upper-triangular Bool Matrix for number
     """
@@ -722,6 +755,8 @@ end
 
 function vec4utri(v)
     """
+    Function returns upper-triangular matrix
+    
     v: Vector of binary numbers
 
     returns: Upper-triangular adjacency matrix of v
