@@ -93,7 +93,7 @@ function sim_ann(it, pop, step_list, obj_fun, res, cool_fun, init_temp, current,
     return current, current_eval, step_count, best, best_cur
 end
 
-function mem_calcs(x, pop, sa=false, args=[100, 0.28, 0, 0])
+function mem_calcs(x, pop, sa=0, args=[100, 0.28, 0, 0])
     """
     Function returns memory statistics
 
@@ -102,7 +102,7 @@ function mem_calcs(x, pop, sa=false, args=[100, 0.28, 0, 0])
 
     returns: Maximum individual memory, total memory
     """
-    sa_agent, sa_mem = args[3], args[4]
+    # sa_agent, sa_mem = args[3], args[4]
     # calculating hawk and dove strategies
     dove = sum(x, dims=1)
     hawk = sum(eachcol(x))
@@ -119,12 +119,23 @@ function mem_calcs(x, pop, sa=false, args=[100, 0.28, 0, 0])
     max_mem = 0
     tot_mem = 0
     mix_mem = 0
+    super_v = 0
 
     for i in 1:pop
         
-        if sa
-            if i == sa_agent
+        if sa > 0
+            sa_agents = []
+            sa_mem = []
+            for j in 1:sa
+                push!(sa_agents, args[2+2j-1])
+                push!(sa_mem, args[2+2j])
+            end
 
+            if i in sa_agents
+                a = findall(x->x==i, sa_agents)[1]
+                # println(a)
+                a_mem = sa_mem[a]
+                # println(a_mem)
                 def = max(dove[i], hawk[i], mix_ar[i]) # assign default action
                 mem_need = pop - 1 - def # calculate memory requirement
     
@@ -136,9 +147,12 @@ function mem_calcs(x, pop, sa=false, args=[100, 0.28, 0, 0])
                 #tot_mem = tot_mem + mem_need # update total memory usage
     
                 # check if memory restriction is violated
-                # if mem_need > max_mem
-                #     max_mem = mem_need
-                # end
+                if mem_need > a_mem
+                    mem_vio = a_mem - mem_need
+                    if mem_vio > super_v
+                        super_v = mem_vio
+                    end
+                end
             else
                 def = max(dove[i], hawk[i], mix_ar[i]) # assign default action
                 mem_need = pop - 1 - def # calculate memory requirement
@@ -174,7 +188,7 @@ function mem_calcs(x, pop, sa=false, args=[100, 0.28, 0, 0])
         # println(i, ", ", mem_need)
     end
 
-    return max_mem, tot_mem, mix_mem
+    return max_mem, tot_mem, mix_mem, super_v
 end
 
 function mem_calcs_full(x, pop)
@@ -188,9 +202,8 @@ function mem_calcs_full(x, pop)
     """
     # calculating hawk and dove strategies
     dove = sum(x, dims=1)
-    println(dove)
+
     hawk = sum(eachcol(x))
-    println(hawk)
 
     # calculating mixed strategies
     mix_ar = zeros(Int64, pop, 1)
@@ -756,7 +769,7 @@ end
 function vec4utri(v)
     """
     Function returns upper-triangular matrix
-    
+
     v: Vector of binary numbers
 
     returns: Upper-triangular adjacency matrix of v

@@ -17,7 +17,8 @@ end
 # sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step8, step9], objective, cool_fun, metro_fun, 10, 3, 13, 100000)
 sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step8, step9, step10, step11, step12], objective, cool_fun, metro_fun, 10, 3, 11, 50000)
 sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step10, step11, step12], objective, cool_fun, metro_fun, 10, 3, 11, 50000)
-sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step10, step11, step12], objective, cool_fun, metro_fun, 10, 3, 10, 100000)
+sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step10, step11, step12], objective, cool_fun, metro_fun, 10, 8, 17, 100000)
+sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step10, step11, step12], objective, cool_fun, metro_fun, 10, 2, 8, 100000)
 
 # opt = gen_in(35146671702464, 10)
 
@@ -49,7 +50,7 @@ sol_list = []
 for i in 1:100
     println(i)
     new, new_eval, step_count, best_sol, best_eval = sim_ann(sim.it_tot, sim.population, sim.steptype, sim.obj_function, sim.restrict, sim.cooling, sim.init_temp, cur, cur_eval, sim.metropolis, steps_taken, sa_status, args)
-    # new, new_eval, step_count, best_sol, best_eval = sim_ann(sim.it_tot, sim.population, sim.steptype, sim.obj_function, sim.restrict, sim.cooling, sim.init_temp, best_eval, best_sol, sim.metropolis, steps_taken, sa_status, args)
+    new, new_eval, step_count, best_sol, best_eval = sim_ann(sim.it_tot, sim.population, sim.steptype, sim.obj_function, sim.restrict, sim.cooling, sim.init_temp, best_eval, best_sol, sim.metropolis, steps_taken, sa_status, args)
     push!(sol_list, best_eval)
 end
 
@@ -65,30 +66,99 @@ for i in unique(sol_list)
     if sum(i) > maxi
         maxi = sum(i)
     end
-    if sum(i) == 24
+    if sum(i) == 13
         println("---------------")
         show(stdout, "text/plain", i)
         println("---------------")
         # mem_calcs_full(i, 11)
-        println(mem_calcs(i, 10))
+        # println(mem_calcs(i, 11))
         # mem_calcs_full(i, sim.population)
     end
 end
 
 println(maxi)
 
+# exhaustive search for 7 agents to check algorithm results
+tot_fights = 0
+mem_max = 2
+opt_mat = 0
+for i in 0:2097152
+# for i in 0:2
+    strat = gen_in(i, 7)
+    maxi, tot, mix, s_vio = mem_calcs(strat, 7, true, [100, 0.28, 4, 4])
+    if maxi <= mem_max || s_vio > 0
+        if sum(strat) > tot_fights
+            tot_fights = sum(strat)
+            opt_mat = strat
+        end
+    end
+end
+disp_mat(opt_mat)
+
+# exhaustive search for 8 agents, 2 memory (takes ~10min)
+# tot_fights = 0
+# mem_max = 2
+# opt_mat = 0
+# for i in 0:268435456
+#     strat = gen_in(i, 8)
+#     maxi, tot, mix = mem_calcs(strat, 8)
+#     if maxi <= mem_max
+#         if sum(strat) > tot_fights
+#             tot_fights = sum(strat)
+#             opt_mat = strat
+#         end
+#     end
+# end
+# disp_mat(opt_mat)
+
 okay1 = Array[]
 try5 = [0 1 0 1 1; 0 0 1 1 1; 0 0 0 1 0; 0 0 0 0 1; 0 0 0 0 0]
+
 okay7 = [0 1 1 0 1 1 1; 0 0 1 0 1 1 1; 0 0 0 1 1 1 1; 0 0 0 0 1 0 0; 0 0 0 0 0 1 1; 0 0 0 0 0 0 1; 0 0 0 0 0 0 0]
 
+okay8 = [0 1 1 0 0 1 1 1; 0 0 1 1 0 1 1 1; 0 0 0 1 1 1 1 1; 0 0 0 0 0 1 0 0; 0 0 0 0 0 1 1 0; 0 0 0 0 0 0 1 1; 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0]
+mem_calcs_full(okay8, 8)
+
 okay9 = [0 1 1 1 0 1 1 1 1; 0 0 1 1 0 1 1 1 1; 0 0 0 1 0 1 1 1 1; 0 0 0 0 1 1 1 1 1; 0 0 0 0 0 1 0 0 0; 0 0 0 0 0 0 1 1 1; 0 0 0 0 0 0 0 1 1; 0 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0 0]
+mem_calcs_full(okay9, 9)
+
 okay11 = [0 1 1 1 1 0 1 1 1 1 1; 0 0 1 1 1 0 1 1 1 1 1; 0 0 0 1 1 0 1 1 1 1 1; 0 0 0 0 1 0 1 1 1 1 1; 0 0 0 0 0 1 1 1 1 1 1; 0 0 0 0 0 0 1 0 0 0 0; 0 0 0 0 0 0 0 1 1 1 1; 0 0 0 0 0 0 0 0 1 1 1; 0 0 0 0 0 0 0 0 0 1 1; 0 0 0 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0 0 0 0]
+
 okay10 = [0 1 1 1 0 0 1 1 1 1; 0 0 1 1 0 0 1 1 1 1; 0 0 0 1 1 0 1 1 1 1; 0 0 0 0 1 1 1 1 1 1; 0 0 0 0 0 0 1 0 0 0 ; 0 0 0 0 0 0 1 1 0 0 ; 0 0 0 0 0 0 0 1 1 1; 0 0 0 0 0 0 0 0 1 1; 0 0 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0 0 0]
 okay102 = [0 1 1 1 0 0 1 1 1 1; 0 0 1 1 0 0 1 1 1 1; 0 0 0 1 0 1 1 1 1 1; 0 0 0 0 1 1 1 1 1 1; 0 0 0 0 0 0 1 1 0 0 ; 0 0 0 0 0 0 1 0 0 0 ; 0 0 0 0 0 0 0 1 1 1; 0 0 0 0 0 0 0 0 1 1; 0 0 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0 0 0]
+mem_calcs_full(okay10, 10)
+
 okay13 = [0 1 1 1 1 1 0 1 1 1 1 1 1; 0 0 1 1 1 1 0 1 1 1 1 1 1; 0 0 0 1 1 1 0 1 1 1 1 1 1; 0 0 0 0 1 1 0 1 1 1 1 1 1; 0 0 0 0 0 1 0 1 1 1 1 1 1; 0 0 0 0 0 0 1 1 1 1 1 1 1; 0 0 0 0 0 0 0 1 0 0 0 0 0; 0 0 0 0 0 0 0 0 1 1 1 1 1; 0 0 0 0 0 0 0 0 0 1 1 1 1; 0 0 0 0 0 0 0 0 0 0 1 1 1; 0 0 0 0 0 0 0 0 0 0 0 1 1; 0 0 0 0 0 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0 0 0 0 0 0]
 okay156
+
+okay10try = [0 1 1 1 0 0 1 1 1 1; 0 0 1 1 0 0 1 1 1 1; 0 0 0 1 0 0 1 1 1 1; 0 0 0 0 1 1 1 1 1 1; 0 0 0 0 0 0 1 0 0 0; 0 0 0 0 0 0 1 0 0 0; 0 0 0 0 0 0 0 1 1 1; 0 0 0 0 0 0 0 0 1 1; 0 0 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0 0 0]
+
+okay12 = [0 1 1 1 1 1 0 1 1 1 1 1; 0 0 1 1 1 0 1 1 1 1 1 1; 0 0 0 1 1 0 0 1 1 1 1 1; 0 0 0 0 1 0 1 1 1 1 1 1; 0 0 0 0 0 1 1 1 1 1 1 1; 0 0 0 0 0 0 0 1 1 0 0 0; 0 0 0 0 0 0 0 1 0 0 0 0; 0 0 0 0 0 0 0 0 1 1 1 1; 0 0 0 0 0 0 0 0 0 1 1 1; 0 0 0 0 0 0 0 0 0 0 1 1; 0 0 0 0 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0 0 0 0 0]
+okay12bas = [0 1 1 1 1 0 0 1 1 1 1 1; 0 0 1 1 1 0 0 1 1 1 1 1; 0 0 0 1 1 0 0 1 1 1 1 1; 0 0 0 0 1 0 1 1 1 1 1 1; 0 0 0 0 0 1 1 1 1 1 1 1; 0 0 0 0 0 0 0 1 1 0 0 0; 0 0 0 0 0 0 0 1 0 0 0 0; 0 0 0 0 0 0 0 0 1 1 1 1; 0 0 0 0 0 0 0 0 0 1 1 1; 0 0 0 0 0 0 0 0 0 0 1 1; 0 0 0 0 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0 0 0 0 0]
+okay12bas1 = [0 1 1 1 1 0 0 1 1 1 1 1; 0 0 1 1 1 0 0 1 1 1 1 1; 0 0 0 1 1 0 0 1 1 1 1 1; 0 0 0 0 1 1 0 1 1 1 1 1; 0 0 0 0 0 1 1 1 1 1 1 1; 0 0 0 0 0 0 0 1 0 0 0 0; 0 0 0 0 0 0 0 1 1 0 0 0; 0 0 0 0 0 0 0 0 1 1 1 1; 0 0 0 0 0 0 0 0 0 1 1 1; 0 0 0 0 0 0 0 0 0 0 1 1; 0 0 0 0 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0 0 0 0 0]
+okay121 = copy(best_eval)
+okay122 = copy(okay12bas)
+
+disp_mat(okay122)
+disp_mat(okay12bas)
+disp_mat(okay12bas1)
+
+mem_calcs_full(okay122, 12)
+mem_calcs_full(okay12bas, 12)
+mem_calcs_full(okay12bas1, 12)
+
+cur_eval = objective(okay10try, 10, 3)
+cur_eval12 = objective(okay12bas1, 12, 4)
+new, new_eval, step_count, best_sol, best_eval = sim_ann(100000, 12, sim.steptype, objective, 4, sim.cooling, sim.init_temp, okay12bas1, cur_eval12, sim.metropolis, steps_taken, false, args)
+disp_mat(best_eval)
+mem_calcs_full(best_eval, 12)
+mem_calcs_full(okay12, 12)
+new, new_eval, step_count, best_sol, best_eval = sim_ann(100000, 10, sim.steptype, objective, 3, sim.cooling, sim.init_temp, okay10try, cur_eval, sim.metropolis, steps_taken, false, args)
+disp_mat(okay12)
+mem_calcs_full(best_eval, 10)
+mem_calcs_full(okay10, 10)
 disp_mat(okay156)
-mem_calcs_full(okay156, 15)
+mem_calcs_full(okay10try, 10)
 println(sum(okay10))
 okay176 = [0 1 1 1 1 1 1 0 0 0 1 1 1 1 1 1 1; 0 0 1 1 1 1 1 0 0 0 1 1 1 1 1 1 1; 0 0 0 1 1 1 1 0 0 0 1 1 1 1 1 1 1; 0 0 0 0 1 1 1 0 0 0 1 1 1 1 1 1 1; 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1; 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1; 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1; 0 0 0 0 0 0 0 0 0 0 1 1 1 0 0 0 0; 0 0 0 0 0 0 0 0 0 0 1 1 1 0 0 0 0; 0 0 0 0 0 0 0 0 0 0 1 1 1 0 0 0 0; 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1; 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1; 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
 
