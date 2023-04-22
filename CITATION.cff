@@ -1,0 +1,14 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Optimal Social Structure Identification
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Jack
+    family-names: Hardy
+    email: jackhardy909@gmail.com
+repository-code: 'https://github.com/jjskr/Dominance-Hierarchy-Simulation'
