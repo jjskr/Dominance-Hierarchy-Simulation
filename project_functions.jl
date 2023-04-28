@@ -25,7 +25,7 @@ function initialise(pop, res, step_list)
     return cur, cur_eval, steps_taken
 end
 
-function sim_ann(it, pop, step_list, obj_fun, res, cool_fun, init_temp, current, current_eval, metro, step_count, sa=false, args=[100, 0.28, 0, 0])
+function sim_ann(it, pop, step_list, obj_fun, res, cool_fun, init_temp, current, current_eval, metro, step_count, sa=0, args=[100, 0.28, 0, 0])
     """
     Function carries out simulated annealing algorithm
 
@@ -121,16 +121,19 @@ function mem_calcs(x, pop, sa=0, args=[100, 0.28, 0, 0])
     mix_mem = 0
     super_v = 0
 
-    for i in 1:pop
-        
-        if sa > 0
-            sa_agents = []
-            sa_mem = []
-            for j in 1:sa
-                push!(sa_agents, args[2+2j-1])
-                push!(sa_mem, args[2+2j])
-            end
+    if sa > 0
+        sa_agents = []
+        sa_mem = []
+        for j in 1:sa
+            push!(sa_agents, args[2+2j-1])
+            push!(sa_mem, args[2+2j])
+        end
+        # println(sa_agents)
+        # println(sa_mem)
+    end
 
+    for i in 1:pop
+        if sa > 0
             if i in sa_agents
                 a = findall(x->x==i, sa_agents)[1]
                 # println(a)
@@ -250,7 +253,7 @@ function objective(x, n_agents, res, sa=false, args=[100, 0.35, 0, 0])
     returns: Cost of strategy matrix
     """
     res_inf, tot_inf, sa_agent, sa_mem = args[1], args[2], args[3], args[4]
-    mem, tot, mix = mem_calcs(x, n_agents, sa, args)
+    mem, tot, mix, s_vio = mem_calcs(x, n_agents, sa, args)
     
     # calculating memory violation
     mem_diff = mem - res
@@ -262,7 +265,13 @@ function objective(x, n_agents, res, sa=false, args=[100, 0.35, 0, 0])
     end
 
     # problem is with co-efficients
-    return sum(x)*(2/((n_agents-1)*n_agents)) - res_inf*mem_v*(2/(n_agents-1)) - tot_inf*tot*(1/((0.5*n_agents)*((0.5*n_agents)-1)))# - 0.1*mix/n_agents*n_agents
+    # disp_mat(x)
+    # println(' ')
+    # println(sum(x)*(2/((n_agents-1)*n_agents)))
+    # println(mem_v*(2/(n_agents-1)))
+    # println(tot*(1/((0.5*n_agents)*((0.5*n_agents)-1))))
+
+    return sum(x)*(2/((n_agents-1)*n_agents)) - res_inf*mem_v*(2/(n_agents-2)) - tot_inf*tot*(1/((0.5*n_agents)*((0.5*n_agents)-1)))# - 0.1*mix/n_agents*n_agents
 end
 
 function objective_mix(x, n_agents, res, sa=false, args=[100, 0.28, 0, 0])
@@ -287,7 +296,6 @@ function objective_mix(x, n_agents, res, sa=false, args=[100, 0.28, 0, 0])
     else
         mem_v = mem_diff
     end
-
     # problem is with co-efficients
     return sum(x)*(2/((n_agents-1)*n_agents)) - res_inf*mem_v*(2/(n_agents-1)) - tot_inf*tot*(1/((0.5*n_agents)*((0.5*n_agents)-1))) - 0.1*mix/n_agents*n_agents
 end

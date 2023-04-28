@@ -1,5 +1,5 @@
-using Cairo, Compose, MetaGraphs, TikzGraphs, TikzPictures, LinearAlgebra, GraphRecipes, Plots, Graphs, GraphPlot
-import Pkg; Pkg.add("Cairo")
+using Compose, MetaGraphs, TikzGraphs, TikzPictures, LinearAlgebra, GraphRecipes, Plots, Graphs, GraphPlot
+
 
 # function graph_matrix(x, pop)
 #     p = pop
@@ -104,6 +104,15 @@ nm = Graphs.DiGraph(best_cur)
 # gplot(nm, nodelabel=1:sim.population)
 
 # t = Plots.plot(nm, nodelabel=1:15)
+
+# plot n = 5, m = 1
+opt51 = unique(sol_list)[1]
+opt512 = unique(sol_list)[2]
+graph51 = Graphs.DiGraph(opt512)
+# graphplot(opt51, nodesize=0.3, names=1:5, fontsize=10, layout=circular_layout)
+gplot(graph51, NODESIZE=0.15, NODELABELSIZE=7, nodesize=1, nodelabel=1:5, layout=circular_layout)
+# draw(SVG("opt51.svg", 15cm, 15cm), gplot(graph51, nodelabel=1:5, layout=circular_layout))
+
 
 # plot n = 11, m = 4
 opt114 = okay11

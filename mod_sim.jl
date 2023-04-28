@@ -15,10 +15,13 @@ end
 
 # Initialising struct
 # sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step8, step9], objective, cool_fun, metro_fun, 10, 3, 13, 100000)
-sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step8, step9, step10, step11, step12], objective, cool_fun, metro_fun, 10, 3, 11, 50000)
-sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step10, step11, step12], objective, cool_fun, metro_fun, 10, 3, 11, 50000)
+sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step8, step9, step10, step11, step12], objective, cool_fun, metro_fun, 10, 3, 11, 100000)
+sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step10, step11, step12], objective, cool_fun, metro_fun, 10, 3, 10, 100000)
 sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step10, step11, step12], objective, cool_fun, metro_fun, 10, 8, 17, 100000)
 sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step10, step11, step12], objective, cool_fun, metro_fun, 10, 2, 8, 100000)
+sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step10, step11, step12], objective, cool_fun, metro_fun, 10, 2, 8, 100000)
+sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step10, step11, step12], objective, cool_fun, metro_fun, 10, 2, 13, 100000)
+sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step10, step11, step12], objective, cool_fun, metro_fun, 10, 2, 9, 100000)
 
 # opt = gen_in(35146671702464, 10)
 
@@ -26,32 +29,35 @@ sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step10, step11, st
 cur, cur_eval, steps_taken = initialise(sim.population, sim.restrict, sim.steptype)
 
 # Initialising arguments
-sa_status = false
-args = [100, 0.35, 6, 12]
+sa_status = 2
+args = [100, 0.35, 3, 3, 7, 3]
 
 # Simulated Annealing
 new, new_eval, step_count, best_sol, best_eval = sim_ann(sim.it_tot, sim.population, sim.steptype, sim.obj_function, sim.restrict, sim.cooling, sim.init_temp, cur, cur_eval, sim.metropolis, steps_taken, sa_status, args)
-show(stdout, "text/plain", best_eval)
-new, new_eval, step_count, best_sol, best_eval = sim_ann(sim.it_tot, sim.population, sim.steptype, objective_mix, sim.restrict, sim.cooling, sim.init_temp, best_eval, best_sol, sim.metropolis, steps_taken, sa_status, args)
-show(stdout, "text/plain", best_eval)
-sum(best_eval)
-mem_calcs(best_eval, 6)
-mem_calcs_full(best_eval, 6)
-sum(new)
-objective(best_eval, sim.population, sim.restrict)
-mem_calcs_full(best_eval, sim.population)
-show(stdout, "text/plain", new)
-objective(new, sim.population, sim.restrict)
-mem_calcs_full(new, sim.population)
-println(new_eval)
+# show(stdout, "text/plain", best_eval)
+# new, new_eval, step_count, best_sol, best_eval = sim_ann(sim.it_tot, sim.population, sim.steptype, objective_mix, sim.restrict, sim.cooling, sim.init_temp, best_eval, best_sol, sim.metropolis, steps_taken, sa_status, args)
+# show(stdout, "text/plain", best_eval)
+# sum(best_eval)
+# mem_calcs(best_eval, 6)
+# mem_calcs_full(best_eval, 6)
+# sum(new)
+# objective(best_eval, sim.population, sim.restrict)
+# mem_calcs_full(best_eval, sim.population)
+# show(stdout, "text/plain", new)
+# objective(new, sim.population, sim.restrict)
+# mem_calcs_full(new, sim.population)
+# println(new_eval)
 
+sa_status = 2
+args = [50, 0.35, 3, 3, 5, 3]
 sol_list = []
 
 for i in 1:100
     println(i)
     new, new_eval, step_count, best_sol, best_eval = sim_ann(sim.it_tot, sim.population, sim.steptype, sim.obj_function, sim.restrict, sim.cooling, sim.init_temp, cur, cur_eval, sim.metropolis, steps_taken, sa_status, args)
-    new, new_eval, step_count, best_sol, best_eval = sim_ann(sim.it_tot, sim.population, sim.steptype, sim.obj_function, sim.restrict, sim.cooling, sim.init_temp, best_eval, best_sol, sim.metropolis, steps_taken, sa_status, args)
+    new, new_eval, step_count, best_sol1, best_eval1 = sim_ann(sim.it_tot, sim.population, sim.steptype, sim.obj_function, sim.restrict, sim.cooling, sim.init_temp, best_eval, best_sol, sim.metropolis, steps_taken, sa_status, args)
     push!(sol_list, best_eval)
+    push!(sol_list, best_eval1)
 end
 
 # step_count
@@ -66,11 +72,11 @@ for i in unique(sol_list)
     if sum(i) > maxi
         maxi = sum(i)
     end
-    if sum(i) == 13
+    if sum(i) == 18
         println("---------------")
         show(stdout, "text/plain", i)
         println("---------------")
-        # mem_calcs_full(i, 11)
+        mem_calcs_full(i, sim.population)
         # println(mem_calcs(i, 11))
         # mem_calcs_full(i, sim.population)
     end
@@ -82,18 +88,31 @@ println(maxi)
 tot_fights = 0
 mem_max = 2
 opt_mat = 0
+# sa_status = 1
+# args = [50, 0.35, 4, 6]
 for i in 0:2097152
 # for i in 0:2
     strat = gen_in(i, 7)
-    maxi, tot, mix, s_vio = mem_calcs(strat, 7, true, [100, 0.28, 4, 4])
-    if maxi <= mem_max || s_vio > 0
+    maxi, tot, mix, s_vio = mem_calcs(strat, 7, 2, [100, 0.28, 5, 3, 3, 3])
+    if maxi <= mem_max && s_vio == 0
         if sum(strat) > tot_fights
             tot_fights = sum(strat)
             opt_mat = strat
         end
+        if sum(strat) == 17 && tot == 6
+            disp_mat(strat)
+            println("---------")
+            # maxi, tot, mix, s_vio = mem_calcs(strat, 7, 2, [100, 0.28, 5, 3, 3, 3])
+            # println(tot)
+            # println("-------")
+        end
     end
 end
+# println(s_vio)
 disp_mat(opt_mat)
+# sum(opt_mat)
+# mem_calcs(opt_mat, 7, 2, [100, 0.28, 5, 3, 3, 3])
+mem_calcs_full(opt_mat, 7)
 
 # exhaustive search for 8 agents, 2 memory (takes ~10min)
 # tot_fights = 0
@@ -113,18 +132,26 @@ disp_mat(opt_mat)
 
 okay1 = Array[]
 try5 = [0 1 0 1 1; 0 0 1 1 1; 0 0 0 1 0; 0 0 0 0 1; 0 0 0 0 0]
-
+try5 = [0 0 0 1 0; 0 0 0 1 0; 0 0 0 1 0; 0 0 0 0 1; 0 0 0 0 0]
+mem_calcs_full(try5, 5)
 okay7 = [0 1 1 0 1 1 1; 0 0 1 0 1 1 1; 0 0 0 1 1 1 1; 0 0 0 0 1 0 0; 0 0 0 0 0 1 1; 0 0 0 0 0 0 1; 0 0 0 0 0 0 0]
 
-okay8 = [0 1 1 0 0 1 1 1; 0 0 1 1 0 1 1 1; 0 0 0 1 1 1 1 1; 0 0 0 0 0 1 0 0; 0 0 0 0 0 1 1 0; 0 0 0 0 0 0 1 1; 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0]
-mem_calcs_full(okay8, 8)
+try8 = [0 1 1 0 0 1 1 1; 0 0 1 1 0 1 1 1; 0 0 0 1 1 1 1 1; 0 0 0 0 0 1 0 0; 0 0 0 0 0 1 1 0; 0 0 0 0 0 0 1 1; 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0]
+mem_calcs_full(try8, 8)
 
 okay9 = [0 1 1 1 0 1 1 1 1; 0 0 1 1 0 1 1 1 1; 0 0 0 1 0 1 1 1 1; 0 0 0 0 1 1 1 1 1; 0 0 0 0 0 1 0 0 0; 0 0 0 0 0 0 1 1 1; 0 0 0 0 0 0 0 1 1; 0 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0 0]
 mem_calcs_full(okay9, 9)
 
+okay11 = [0 1 1 1 1 0 1 1 1 1 1; 0 0 1 1 1 0 1 1 1 1 1; 0 0 0 1 1 0 1 1 1 1 1; 0 0 0 0 1 1 1 1 1 1 1; 0 0 0 0 0 1 1 1 1 1 1; 0 0 0 0 0 0 1 1 0 0 0; 0 0 0 0 0 0 0 1 1 1 1; 0 0 0 0 0 0 0 0 1 1 1; 0 0 0 0 0 0 0 0 0 1 1; 0 0 0 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0 0 0 0]
 okay11 = [0 1 1 1 1 0 1 1 1 1 1; 0 0 1 1 1 0 1 1 1 1 1; 0 0 0 1 1 0 1 1 1 1 1; 0 0 0 0 1 0 1 1 1 1 1; 0 0 0 0 0 1 1 1 1 1 1; 0 0 0 0 0 0 1 0 0 0 0; 0 0 0 0 0 0 0 1 1 1 1; 0 0 0 0 0 0 0 0 1 1 1; 0 0 0 0 0 0 0 0 0 1 1; 0 0 0 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0 0 0 0]
 
+mem_calcs_full(okay11, 11)
+
+try10 = [0 1 1 1 0 0 1 1 1 1; 0 0 1 1 0 0 1 1 1 1; 0 0 0 1 0 0 1 1 1 1; 0 0 0 0 1 1 1 1 1 1; 0 0 0 0 0 0 1 0 0 0 ; 0 0 0 0 0 0 1 0 0 0 ; 0 0 0 0 0 0 0 1 1 1; 0 0 0 0 0 0 0 0 1 1; 0 0 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0 0 0]
 okay10 = [0 1 1 1 0 0 1 1 1 1; 0 0 1 1 0 0 1 1 1 1; 0 0 0 1 1 0 1 1 1 1; 0 0 0 0 1 1 1 1 1 1; 0 0 0 0 0 0 1 0 0 0 ; 0 0 0 0 0 0 1 1 0 0 ; 0 0 0 0 0 0 0 1 1 1; 0 0 0 0 0 0 0 0 1 1; 0 0 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0 0 0]
+okay102 = [0 1 1 1 0 0 1 1 1 1; 0 0 1 1 0 0 1 1 1 1; 0 0 0 1 0 1 1 1 1 1; 0 0 0 0 1 1 1 1 1 1; 0 0 0 0 0 0 1 1 0 0 ; 0 0 0 0 0 0 1 0 0 0 ; 0 0 0 0 0 0 0 1 1 1; 0 0 0 0 0 0 0 0 1 1; 0 0 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0 0 0]
+# okay102 = [0 1 1 1 0 0 1 1 1 1; 0 0 1 1 0 0 1 1 1 1; 0 0 0 1 0 1 1 1 1 1; 0 0 0 0 1 1 1 1 1 1; 0 0 0 0 0 0 1 1 0 0 ; 0 0 0 0 0 0 1 0 0 0 ; 0 0 0 0 0 0 0 1 1 1; 0 0 0 0 0 0 0 0 1 1; 0 0 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0 0 0]
+sum(okay102)
 okay102 = [0 1 1 1 0 0 1 1 1 1; 0 0 1 1 0 0 1 1 1 1; 0 0 0 1 0 1 1 1 1 1; 0 0 0 0 1 1 1 1 1 1; 0 0 0 0 0 0 1 1 0 0 ; 0 0 0 0 0 0 1 0 0 0 ; 0 0 0 0 0 0 0 1 1 1; 0 0 0 0 0 0 0 0 1 1; 0 0 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0 0 0]
 mem_calcs_full(okay10, 10)
 
@@ -136,8 +163,18 @@ okay10try = [0 1 1 1 0 0 1 1 1 1; 0 0 1 1 0 0 1 1 1 1; 0 0 0 1 0 0 1 1 1 1; 0 0 
 okay12 = [0 1 1 1 1 1 0 1 1 1 1 1; 0 0 1 1 1 0 1 1 1 1 1 1; 0 0 0 1 1 0 0 1 1 1 1 1; 0 0 0 0 1 0 1 1 1 1 1 1; 0 0 0 0 0 1 1 1 1 1 1 1; 0 0 0 0 0 0 0 1 1 0 0 0; 0 0 0 0 0 0 0 1 0 0 0 0; 0 0 0 0 0 0 0 0 1 1 1 1; 0 0 0 0 0 0 0 0 0 1 1 1; 0 0 0 0 0 0 0 0 0 0 1 1; 0 0 0 0 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0 0 0 0 0]
 okay12bas = [0 1 1 1 1 0 0 1 1 1 1 1; 0 0 1 1 1 0 0 1 1 1 1 1; 0 0 0 1 1 0 0 1 1 1 1 1; 0 0 0 0 1 0 1 1 1 1 1 1; 0 0 0 0 0 1 1 1 1 1 1 1; 0 0 0 0 0 0 0 1 1 0 0 0; 0 0 0 0 0 0 0 1 0 0 0 0; 0 0 0 0 0 0 0 0 1 1 1 1; 0 0 0 0 0 0 0 0 0 1 1 1; 0 0 0 0 0 0 0 0 0 0 1 1; 0 0 0 0 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0 0 0 0 0]
 okay12bas1 = [0 1 1 1 1 0 0 1 1 1 1 1; 0 0 1 1 1 0 0 1 1 1 1 1; 0 0 0 1 1 0 0 1 1 1 1 1; 0 0 0 0 1 1 0 1 1 1 1 1; 0 0 0 0 0 1 1 1 1 1 1 1; 0 0 0 0 0 0 0 1 0 0 0 0; 0 0 0 0 0 0 0 1 1 0 0 0; 0 0 0 0 0 0 0 0 1 1 1 1; 0 0 0 0 0 0 0 0 0 1 1 1; 0 0 0 0 0 0 0 0 0 0 1 1; 0 0 0 0 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0 0 0 0 0]
+try12bas1 = [0 1 1 1 1 0 1 1 1 1 1 1; 0 0 1 1 1 0 0 1 1 1 1 1; 0 0 0 1 1 0 0 1 1 1 1 1; 0 0 0 0 1 1 0 1 1 1 1 1; 0 0 0 0 0 1 1 1 1 1 1 1; 0 0 0 0 0 0 0 1 1 0 0 0; 0 0 0 0 0 0 0 1 1 0 0 0; 0 0 0 0 0 0 0 0 1 1 1 1; 0 0 0 0 0 0 0 0 0 1 1 1; 0 0 0 0 0 0 0 0 0 0 1 1; 0 0 0 0 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0 0 0 0 0]
+try12bas12 = [0 1 1 1 1 0 0 1 1 1 1 1; 0 0 1 1 1 0 0 1 1 1 1 1; 0 0 0 1 1 0 1 1 1 1 1 1; 0 0 0 0 1 1 0 1 1 1 1 1; 0 0 0 0 0 1 1 1 1 1 1 1; 0 0 0 0 0 0 0 1 1 0 0 0; 0 0 0 0 0 0 0 1 0 1 0 0; 0 0 0 0 0 0 0 0 1 1 1 1; 0 0 0 0 0 0 0 0 0 1 1 1; 0 0 0 0 0 0 0 0 0 0 1 1; 0 0 0 0 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0 0 0 0 0]
+disp_mat(try12bas12)
+mem_calcs_full(try12bas12, 12)
+sum(try12bas12)
 okay121 = copy(best_eval)
 okay122 = copy(okay12bas)
+
+okay14 = [0 1 1 1 1 1 1 1 1 1 1 1 1 1; 0 0 1 1 1 1 1 1 1 1 1 1 1 1; 0 0 0 1 1 1 0 0 1 1 1 1 1 1; 0 0 0 0 1 1 0 0 1 1 1 1 1 1; 0 0 0 0 0 1 1 0 1 1 1 1 1 1; 0 0 0 0 0 0 1 1 1 1 1 1 1 1; 0 0 0 0 0 0 0 0 1 0 0 0 0 0; 0 0 0 0 0 0 0 0 1 1 0 0 0 0; 0 0 0 0 0 0 0 0 0 1 1 1 1 1; 0 0 0 0 0 0 0 0 0 0 1 1 1 1; 0 0 0 0 0 0 0 0 0 0 0 1 1 1; 0 0 0 0 0 0 0 0 0 0 0 0 1 1; 0 0 0 0 0 0 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+mem_calcs_full(okay14, 14)
+disp_mat(okay14)
+sum(okay14)
 
 disp_mat(okay122)
 disp_mat(okay12bas)
