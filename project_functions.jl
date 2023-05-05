@@ -69,6 +69,10 @@ function sim_ann(it, pop, step_list, obj_fun, res, cool_fun, init_temp, current,
         if diff < 0 || rand(Float64) < metrop
             current, current_eval = cand, cand_sum
             step_count[num] = step_count[num] + 1
+            if sum(current) == 17
+                println(i)
+                disp_mat(current)
+            end
             # if cur_eval > best
             #     println(it)
             #     best = cur_eval

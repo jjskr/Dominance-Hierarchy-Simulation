@@ -106,13 +106,26 @@ nm = Graphs.DiGraph(best_cur)
 # t = Plots.plot(nm, nodelabel=1:15)
 
 # plot n = 5, m = 1
-opt51 = unique(sol_list)[1]
-opt512 = unique(sol_list)[2]
-graph51 = Graphs.DiGraph(opt512)
+opt51 = [0 1 1 1 1; 0 0 0 0 0; 0 0 0 0 0; 0 0 0 0 0; 0 0 0 0 0]
+opt512 = [0 0 0 0 1; 0 0 0 0 1; 0 0 0 0 1; 0 0 0 0 1; 0 0 0 0 0]
+graph51 = Graphs.DiGraph(opt51)
 # graphplot(opt51, nodesize=0.3, names=1:5, fontsize=10, layout=circular_layout)
-gplot(graph51, NODESIZE=0.15, NODELABELSIZE=7, nodesize=1, nodelabel=1:5, layout=circular_layout)
+gplot(graph51, NODESIZE=0.15, NODELABELSIZE=7, nodesize=1, nodelabel=["A", "B", "C", "D", "E"], layout=circular_layout)
 # draw(SVG("opt51.svg", 15cm, 15cm), gplot(graph51, nodelabel=1:5, layout=circular_layout))
 
+# plot n=8 sr
+okay8 = [0 1 1 0 0 1 1 1; 0 0 1 0 0 1 1 1; 0 0 0 1 1 1 1 1; 0 0 0 0 0 1 0 0; 0 0 0 0 0 1 0 0; 0 0 0 0 0 0 1 1; 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0]
+graph8sr = Graphs.DiGraph(okay8)
+gplot(graph8sr, NODESIZE=0.15, NODELABELSIZE=7, nodesize=1, nodelabel=["A", "B", "C", "D", "E", "F", "G", "H"])
+# graphplot(opt93, nodesize=0.3, names=1:9, fontsize=10)
+
+# plot n=6 sr
+okay61 = [0 1 0 1 1 1; 0 0 0 0 1 1; 0 0 0 0 0 1; 0 0 0 0 0 0; 0 0 0 0 0 1; 0 0 0 0 0 0]
+graph6sr = Graphs.DiGraph(okay61)
+gplot(graph6sr, NODESIZE=0.15, NODELABELSIZE=7, nodesize=1, nodelabel=["A", "B", "C", "D", "E", "F"])
+okay62 = [0 1 1 0 1 1; 0 0 0 0 1 1; 0 0 0 0 0 0; 0 0 0 0 0 1; 0 0 0 0 0 1; 0 0 0 0 0 0]
+graph61sr = Graphs.DiGraph(okay62)
+gplot(graph61sr, NODESIZE=0.15, NODELABELSIZE=7, nodesize=1, nodelabel=["A", "B", "C", "D", "E", "F"])
 
 # plot n = 11, m = 4
 opt114 = okay11
@@ -123,7 +136,7 @@ gplot(graph114, nodelabel=1:11)
 opt93 = okay9
 graph93 = Graphs.DiGraph(opt93)
 gplot(graph93, nodelabel=1:9)
-graphplot(opt93, nodesize=0.3, names=1:9, fontsize=10)
+# graphplot(opt93, nodesize=0.3, names=1:9, fontsize=10)
 
 # plot n = 7, m = 2
 opt72 = okay7
@@ -135,3 +148,7 @@ draw(PNG("opt72.png", 15cm, 15cm), gplot(graph72, nodelabel=1:7))
 draw(SVGJS("opt72.svg"), gplot(graph72, nodelabel=1:7))
 png(graphplot(opt72, nodesize=0.3, names=1:7, fontsize=10), "opt72")
 savefig(graphplot(opt72, nodesize=0.3, names=1:7, fontsize=10), "opt72")
+
+okay7 = [0 1 1 0 1 1 1; 0 0 1 0 1 1 1; 0 0 0 1 1 1 1; 0 0 0 0 1 0 0; 0 0 0 0 0 1 1; 0 0 0 0 0 0 1; 0 0 0 0 0 0 0]
+graph721 = Graphs.DiGraph(okay7)
+gplot(graph721, NODESIZE=0.15, NODELABELSIZE=7, nodesize=1, nodelabel=["A", "B", "C", "D", "E", "F", "G"])

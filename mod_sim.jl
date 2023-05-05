@@ -21,7 +21,8 @@ sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step10, step11, st
 sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step10, step11, step12], objective, cool_fun, metro_fun, 10, 2, 8, 100000)
 sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step10, step11, step12], objective, cool_fun, metro_fun, 10, 2, 8, 100000)
 sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step10, step11, step12], objective, cool_fun, metro_fun, 10, 2, 13, 100000)
-sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step10, step11, step12], objective, cool_fun, metro_fun, 10, 2, 9, 100000)
+sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step10, step11, step12], objective, cool_fun, metro_fun, 10, 2, 7, 100000)
+sim = SimAnnealing([step4, step5, step6, step10, step11, step12], objective, cool_fun, metro_fun, 10, 2, 7, 100000)
 
 # opt = gen_in(35146671702464, 10)
 
@@ -29,12 +30,12 @@ sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step10, step11, st
 cur, cur_eval, steps_taken = initialise(sim.population, sim.restrict, sim.steptype)
 
 # Initialising arguments
-sa_status = 2
-args = [100, 0.35, 3, 3, 7, 3]
+sa_status = 0
+args = [30, 0.35, 3, 3, 5, 3]
 
 # Simulated Annealing
 new, new_eval, step_count, best_sol, best_eval = sim_ann(sim.it_tot, sim.population, sim.steptype, sim.obj_function, sim.restrict, sim.cooling, sim.init_temp, cur, cur_eval, sim.metropolis, steps_taken, sa_status, args)
-# show(stdout, "text/plain", best_eval)
+show(stdout, "text/plain", best_eval)
 # new, new_eval, step_count, best_sol, best_eval = sim_ann(sim.it_tot, sim.population, sim.steptype, objective_mix, sim.restrict, sim.cooling, sim.init_temp, best_eval, best_sol, sim.metropolis, steps_taken, sa_status, args)
 # show(stdout, "text/plain", best_eval)
 # sum(best_eval)
@@ -49,14 +50,14 @@ new, new_eval, step_count, best_sol, best_eval = sim_ann(sim.it_tot, sim.populat
 # println(new_eval)
 
 sa_status = 2
-args = [50, 0.35, 3, 3, 5, 3]
+args = [30, 0.28, 2, 3, 6, 3]
 sol_list = []
 
 for i in 1:100
     println(i)
     new, new_eval, step_count, best_sol, best_eval = sim_ann(sim.it_tot, sim.population, sim.steptype, sim.obj_function, sim.restrict, sim.cooling, sim.init_temp, cur, cur_eval, sim.metropolis, steps_taken, sa_status, args)
     new, new_eval, step_count, best_sol1, best_eval1 = sim_ann(sim.it_tot, sim.population, sim.steptype, sim.obj_function, sim.restrict, sim.cooling, sim.init_temp, best_eval, best_sol, sim.metropolis, steps_taken, sa_status, args)
-    push!(sol_list, best_eval)
+    # push!(sol_list, best_eval)
     push!(sol_list, best_eval1)
 end
 
@@ -72,7 +73,7 @@ for i in unique(sol_list)
     if sum(i) > maxi
         maxi = sum(i)
     end
-    if sum(i) == 18
+    if sum(i) == 17
         println("---------------")
         show(stdout, "text/plain", i)
         println("---------------")
@@ -84,6 +85,8 @@ end
 
 println(maxi)
 
+okok9 = [0 1 1 1 1 1 1 1 1; 0 0 1 1 1 1 1 1 1; 0 0 0 0 0 0 1 0 1; 0 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0 1; 0 0 0 0 0 0 0 0 0]
+mem_calcs_full(okok9, 9)
 # exhaustive search for 7 agents to check algorithm results
 tot_fights = 0
 mem_max = 2
@@ -110,6 +113,10 @@ for i in 0:2097152
 end
 # println(s_vio)
 disp_mat(opt_mat)
+
+
+
+new7 = copy(opt_mat)
 # sum(opt_mat)
 # mem_calcs(opt_mat, 7, 2, [100, 0.28, 5, 3, 3, 3])
 mem_calcs_full(opt_mat, 7)
