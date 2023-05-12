@@ -20,9 +20,9 @@ sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step10, step11, st
 sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step10, step11, step12], objective, cool_fun, metro_fun, 10, 8, 17, 100000)
 sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step10, step11, step12], objective, cool_fun, metro_fun, 10, 2, 8, 100000)
 sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step10, step11, step12], objective, cool_fun, metro_fun, 10, 2, 8, 100000)
-sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step10, step11, step12], objective, cool_fun, metro_fun, 10, 2, 13, 100000)
+sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step10, step11, step12], objective, cool_fun, metro_fun, 10, 2, 13, 200000)
 sim = SimAnnealing([step1, step2, step3, step4, step5, step6, step10, step11, step12], objective, cool_fun, metro_fun, 10, 2, 7, 100000)
-sim = SimAnnealing([step4, step5, step6, step10, step11, step12], objective, cool_fun, metro_fun, 10, 2, 7, 100000)
+# sim = SimAnnealing([step4, step5, step6, step10, step11, step12], objective, cool_fun, metro_fun, 10, 2, 7, 100000)
 
 # opt = gen_in(35146671702464, 10)
 
@@ -34,8 +34,8 @@ sa_status = 0
 args = [30, 0.35, 3, 3, 5, 3]
 
 # Simulated Annealing
-new, new_eval, step_count, best_sol, best_eval = sim_ann(sim.it_tot, sim.population, sim.steptype, sim.obj_function, sim.restrict, sim.cooling, sim.init_temp, cur, cur_eval, sim.metropolis, steps_taken, sa_status, args)
-show(stdout, "text/plain", best_eval)
+# new, new_eval, step_count, best_sol, best_eval = sim_ann(sim.it_tot, sim.population, sim.steptype, sim.obj_function, sim.restrict, sim.cooling, sim.init_temp, cur, cur_eval, sim.metropolis, steps_taken, sa_status, args)
+# show(stdout, "text/plain", best_eval)
 # new, new_eval, step_count, best_sol, best_eval = sim_ann(sim.it_tot, sim.population, sim.steptype, objective_mix, sim.restrict, sim.cooling, sim.init_temp, best_eval, best_sol, sim.metropolis, steps_taken, sa_status, args)
 # show(stdout, "text/plain", best_eval)
 # sum(best_eval)
@@ -49,8 +49,8 @@ show(stdout, "text/plain", best_eval)
 # mem_calcs_full(new, sim.population)
 # println(new_eval)
 
-sa_status = 2
-args = [30, 0.28, 2, 3, 6, 3]
+# sa_status = 2
+# args = [30, 0.28, 2, 3, 6, 3]
 sol_list = []
 
 for i in 1:100
